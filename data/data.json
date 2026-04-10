@@ -1,0 +1,546 @@
+{
+  "countries": [
+    {
+      "id": "1",
+      "name": "Afghanistan",
+      "code": "AF",
+      "status": "Active",
+      "countryId": "",
+      "stateId": ""
+    },
+    {
+      "id": "2",
+      "name": "Albania",
+      "code": "AL",
+      "status": "Active"
+    },
+    {
+      "id": "3",
+      "name": "Algeria",
+      "code": "DZ",
+      "status": "Active"
+    },
+    {
+      "id": "4",
+      "name": "Andorra",
+      "code": "AD",
+      "status": "Active"
+    },
+    {
+      "id": "5",
+      "name": "Angola",
+      "code": "AO",
+      "status": "Active"
+    },
+    {
+      "id": "6",
+      "name": "Argentina",
+      "code": "AR",
+      "status": "Active"
+    },
+    {
+      "id": "7",
+      "name": "Armenia",
+      "code": "AM",
+      "status": "Active"
+    },
+    {
+      "id": "8",
+      "name": "Australia",
+      "code": "AU",
+      "status": "Active"
+    },
+    {
+      "id": "9",
+      "name": "Austria",
+      "code": "AT",
+      "status": "Active"
+    },
+    {
+      "id": "10",
+      "name": "Azerbaijan",
+      "code": "AZ",
+      "status": "Active"
+    },
+    {
+      "id": "11",
+      "name": "Bahrain",
+      "code": "BH",
+      "status": "Active"
+    },
+    {
+      "id": "12",
+      "name": "Bangladesh",
+      "code": "BD",
+      "status": "Active"
+    },
+    {
+      "id": "13",
+      "name": "Belgium",
+      "code": "BE",
+      "status": "Active"
+    },
+    {
+      "id": "14",
+      "name": "Bhutan",
+      "code": "BT",
+      "status": "Active"
+    },
+    {
+      "id": "15",
+      "name": "Brazil",
+      "code": "BR",
+      "status": "Active"
+    },
+    {
+      "id": "16",
+      "name": "Canada",
+      "code": "CA",
+      "status": "Active"
+    },
+    {
+      "id": "17",
+      "name": "China",
+      "code": "CN",
+      "status": "Active"
+    },
+    {
+      "id": "18",
+      "name": "Denmark",
+      "code": "DK",
+      "status": "Active"
+    },
+    {
+      "id": "19",
+      "name": "Egypt",
+      "code": "EG",
+      "status": "Active"
+    },
+    {
+      "id": "20",
+      "name": "Finland",
+      "code": "FI",
+      "status": "Active"
+    },
+    {
+      "id": "21",
+      "name": "France",
+      "code": "FR",
+      "status": "Active"
+    },
+    {
+      "id": "22",
+      "name": "Germany",
+      "code": "DE",
+      "status": "Active"
+    },
+    {
+      "id": "23",
+      "name": "Greece",
+      "code": "GR",
+      "status": "Active"
+    },
+    {
+      "id": "24",
+      "name": "India",
+      "code": "IN",
+      "status": "Active"
+    },
+    {
+      "id": "25",
+      "name": "Indonesia",
+      "code": "ID",
+      "status": "Active"
+    },
+    {
+      "id": "26",
+      "name": "Iran",
+      "code": "IR",
+      "status": "Active"
+    },
+    {
+      "id": "27",
+      "name": "Iraq",
+      "code": "IQ",
+      "status": "Active"
+    },
+    {
+      "id": "28",
+      "name": "Ireland",
+      "code": "IE",
+      "status": "Active"
+    },
+    {
+      "id": "29",
+      "name": "Italy",
+      "code": "IT",
+      "status": "Active"
+    },
+    {
+      "id": "30",
+      "name": "Japan",
+      "code": "JP",
+      "status": "Active"
+    },
+    {
+      "id": "31",
+      "name": "Kenya",
+      "code": "KE",
+      "status": "Active"
+    },
+    {
+      "id": "32",
+      "name": "Malaysia",
+      "code": "MY",
+      "status": "Active"
+    },
+    {
+      "id": "33",
+      "name": "Maldives",
+      "code": "MV",
+      "status": "Active"
+    },
+    {
+      "id": "34",
+      "name": "Mexico",
+      "code": "MX",
+      "status": "Active"
+    },
+    {
+      "id": "35",
+      "name": "Nepal",
+      "code": "NP",
+      "status": "Active"
+    },
+    {
+      "id": "36",
+      "name": "Netherlands",
+      "code": "NL",
+      "status": "Active"
+    },
+    {
+      "id": "37",
+      "name": "New Zealand",
+      "code": "NZ",
+      "status": "Active"
+    },
+    {
+      "id": "38",
+      "name": "Nigeria",
+      "code": "NG",
+      "status": "Active"
+    },
+    {
+      "id": "39",
+      "name": "Norway",
+      "code": "NO",
+      "status": "Active"
+    },
+    {
+      "id": "40",
+      "name": "Oman",
+      "code": "OM",
+      "status": "Active"
+    },
+    {
+      "id": "41",
+      "name": "Pakistan",
+      "code": "PK",
+      "status": "Active"
+    },
+    {
+      "id": "42",
+      "name": "Philippines",
+      "code": "PH",
+      "status": "Active"
+    },
+    {
+      "id": "43",
+      "name": "Poland",
+      "code": "PL",
+      "status": "Active"
+    },
+    {
+      "id": "44",
+      "name": "Portugal",
+      "code": "PT",
+      "status": "Active"
+    },
+    {
+      "id": "45",
+      "name": "Qatar",
+      "code": "QA",
+      "status": "Active"
+    },
+    {
+      "id": "46",
+      "name": "Russia",
+      "code": "RU",
+      "status": "Active"
+    },
+    {
+      "id": "47",
+      "name": "Saudi Arabia",
+      "code": "SA",
+      "status": "Active"
+    },
+    {
+      "id": "48",
+      "name": "Singapore",
+      "code": "SG",
+      "status": "Active"
+    },
+    {
+      "id": "49",
+      "name": "South Africa",
+      "code": "ZA",
+      "status": "Active"
+    },
+    {
+      "id": "50",
+      "name": "South Korea",
+      "code": "KR",
+      "status": "Active"
+    },
+    {
+      "id": "51",
+      "name": "Spain",
+      "code": "ES",
+      "status": "Active"
+    },
+    {
+      "id": "52",
+      "name": "Sri Lanka",
+      "code": "LK",
+      "status": "Active"
+    },
+    {
+      "id": "53",
+      "name": "Sweden",
+      "code": "SE",
+      "status": "Active"
+    },
+    {
+      "id": "54",
+      "name": "Switzerland",
+      "code": "CH",
+      "status": "Active"
+    },
+    {
+      "id": "55",
+      "name": "Thailand",
+      "code": "TH",
+      "status": "Active"
+    },
+    {
+      "id": "56",
+      "name": "Turkey",
+      "code": "TR",
+      "status": "Active"
+    },
+    {
+      "id": "57",
+      "name": "United Arab Emirates",
+      "code": "AE",
+      "status": "Active"
+    },
+    {
+      "id": "58",
+      "name": "United Kingdom",
+      "code": "GB",
+      "status": "Active"
+    },
+    {
+      "id": "59",
+      "name": "United States",
+      "code": "US",
+      "status": "Active"
+    },
+    {
+      "id": "60",
+      "name": "Vietnam",
+      "code": "VN",
+      "status": "Active"
+    }
+  ],
+  "states": [
+    {
+      "id": "st1",
+      "name": "Andhra Pradesh",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st2",
+      "name": "Arunachal Pradesh",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st3",
+      "name": "Assam",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st4",
+      "name": "Bihar",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st5",
+      "name": "Chhattisgarh",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st6",
+      "name": "Goa",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st7",
+      "name": "Gujarat",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st8",
+      "name": "Haryana",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st9",
+      "name": "Himachal Pradesh",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st10",
+      "name": "Jharkhand",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st11",
+      "name": "Karnataka",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st12",
+      "name": "Kerala",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st13",
+      "name": "Madhya Pradesh",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st14",
+      "name": "Maharashtra",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st15",
+      "name": "Manipur",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st16",
+      "name": "Meghalaya",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st17",
+      "name": "Mizoram",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st18",
+      "name": "Nagaland",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st19",
+      "name": "Odisha",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st20",
+      "name": "Punjab",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st21",
+      "name": "Rajasthan",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st22",
+      "name": "Sikkim",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st23",
+      "name": "Tamil Nadu",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st24",
+      "name": "Telangana",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st25",
+      "name": "Tripura",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st26",
+      "name": "Uttar Pradesh",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st27",
+      "name": "Uttarakhand",
+      "countryId": "24",
+      "status": "Active"
+    },
+    {
+      "id": "st28",
+      "name": "West Bengal",
+      "countryId": "24",
+      "status": "Active"
+    }
+  ],
+  "cities": [
+    {
+      "name": "Chennai",
+      "countryId": "24",
+      "stateId": "st23",
+      "id": "48bf",
+      "status": "Active"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

@@ -1,0 +1,93 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+.business-wrapper {
+  background-color: #f8fafc;
+  height: 100vh;
+  padding: 24px 30px;
+  font-family: "Inter", sans-serif;
+  overflow-x: hidden;
+}
+.scrollable-content {
+  max-height: calc(100vh - 340px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.scrollable-content::-webkit-scrollbar {
+  display: none;
+}
+.tab-btn {
+  flex: 1;
+  border: none;
+  background: none;
+  border-bottom: 2px solid transparent;
+  padding: 12px;
+  font-weight: 600;
+  color: #64748b;
+  transition: 0.3s;
+}
+.tab-btn.active {
+  color: #1a56a6;
+  border-bottom-color: #1a56a6;
+}
+.form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 5px;
+  display: block;
+}
+.form-label span {
+  color: #ef4444;
+}
+.logo-upload-box {
+  border: 1px solid #cfd6e8;
+  border-radius: 8px;
+  padding: 15px;
+  background: #fff;
+  height: 178px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+}
+
+.logo-upload-box:hover,
+.logo-upload-box:focus-within {
+  border-color: #136dec;
+}
+
+.logo-error {
+  border-color: #ef4444 !important;
+}
+.btn-outline-custom {
+  border: 1px solid #136dec !important;
+  color: #136dec !important;
+  border-radius: 8px;
+  background: transparent;
+}
+.add-unit-btn {
+  background-color: #136dec;
+  color: white;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.add-unit-btn:hover {
+  background-color: #1158c7;
+  color: white;
+}
+@media (max-width: 768px) {
+  .business-wrapper {
+    padding: 15px;
+  }
+  .logo-upload-box {
+    height: auto;
+    min-height: 180px;
+  }
+}

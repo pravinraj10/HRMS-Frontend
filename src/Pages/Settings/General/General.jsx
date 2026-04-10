@@ -1,0 +1,720 @@
+import React, { useState, useEffect, useMemo } from "react";
+import { FiEdit2, FiTrash2, FiPlus, FiHome } from "react-icons/fi";
+import ReusableTable from "../../../Reusbale/ReusableTable";
+import ReusableSearch from "../../../Reusbale/ReusableSearch";
+import ReusableDropdown from "../../../Reusbale/ReusableDropdown";
+import ReusableConfirm from "../../../Reusbale/ReusableConfirm";
+import { useCrud } from "../../../hooks/useCrud";
+import { useForm } from "react-hook-form";
+import TextField from "@mui/material/TextField";
+import ReusablePopup from "../../../Reusbale/ReusablePopup";
+import ResuableForm from "../../../Reusbale/ReusableForm";
+
+const General = () => {
+  const [activeTab, setActiveTab] = useState("country");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterValues, setFilterValues] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [popupState, setPopupState] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "success",
+  });
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState(null);
+  const {
+    countries,
+    states,
+    cities,
+    displayedCountries,
+    displayedStates,
+    displayedCities,
+    loading,
+    create,
+    update,
+    remove,
+    toggleStatus,
+    searchCountry,
+    searchState,
+    searchCity,
+  } = useCrud();
+  const [visibleCount, setVisibleCount] = useState(10);
+  const [isFetching, setIsFetching] = useState(false);
+
+  useEffect(() => {
+    setVisibleCount(10);
+    
+    // If searchTerm is empty, we don't need a timeout for immediate reset
+    if (!searchTerm) {
+      if (activeTab === "country") searchCountry("");
+      if (activeTab === "state") searchState("");
+      if (activeTab === "city") searchCity("");
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      if (activeTab === "country") searchCountry(searchTerm);
+      if (activeTab === "state") searchState(searchTerm);
+      if (activeTab === "city") searchCity(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [activeTab, searchTerm]);
+
+  const endpointMap = { country: "Country", state: "State", city: "City" };
+  const dataMap = {
+    country: displayedCountries,
+    state: displayedStates,
+    city: displayedCities,
+  };
+  const apiData = dataMap[activeTab] || [];
+
+  const countryOptions = useMemo(
+    () =>
+      countries
+        .filter((c) => c.status === "Active")
+        .map((c) => ({ label: c.name, value: c.id })),
+    [countries],
+  );
+
+  const selectedCountry = watch("countryId");
+
+  const stateOptions = useMemo(
+    () =>
+      states
+        .filter((s) => s.countryId === selectedCountry && s.status === "Active")
+        .map((s) => ({ label: s.name, value: s.id })),
+    [states, selectedCountry],
+  );
+
+  const filteredStateOptions = useMemo(
+    () =>
+      states
+        .filter(
+          (s) => s.countryId === filterValues.countryId && s.status === "Active",
+        )
+        .map((s) => ({ label: s.name, value: s.id })),
+    [states, filterValues.countryId],
+  );
+
+  const showPopup = (title, message, type = "success") => {
+    setPopupState({ isOpen: true, title, message, type });
+  };
+
+  const handleEdit = (row) => {
+    Object.keys(row).forEach((key) => {
+      setValue(key, row[key]);
+    });
+    setEditingId(row.id);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (row) => {
+    setDeleteItem(row);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteItem) return;
+    await remove(endpointMap[activeTab], deleteItem);
+    setIsConfirmOpen(false);
+    setDeleteItem(null);
+  };
+
+  const StatusBadge = ({ status }) => (
+    <span
+      className="d-inline-flex align-items-center justify-content-center text-white fw-bold status-badge-style"
+      style={{
+        backgroundColor: status === "Active" ? "#22c55e" : "#ef4444",
+      }}
+    >
+      {status}
+    </span>
+  );
+
+  const tabsConfig = {
+    country: {
+      label: "Country",
+      columns: [
+        { key: "name", label: "Country Name" },
+        {
+          key: "code",
+          label: "Country Code",
+          className: "text-custom-blue fw-medium",
+        },
+        {
+          key: "status",
+          label: "Status",
+          render: (row) => <StatusBadge status={row.status} />,
+        },
+        {
+          key: "action",
+          label: "Action",
+          render: (row) => (
+            <div className="d-flex justify-content-center gap-3 action-icons-container">
+              <FiEdit2
+                className="action-icon icon-edit"
+                onClick={() => handleEdit(row)}
+                title="Edit"
+              />
+              <FiTrash2
+                className="action-icon icon-delete"
+                onClick={() => handleDelete(row)}
+                title="Delete"
+              />
+              <label
+                className="ios-toggle"
+                title="Toggle Status"
+                style={{ margin: 0 }}
+              >
+                <input
+                  type="checkbox"
+                  checked={row.status === "Active"}
+                  onChange={() => handleToggleStatus(row)}
+                />
+                <span className="ios-slider"></span>
+              </label>
+            </div>
+          ),
+        },
+      ],
+      filters: [],
+      formFields: [
+        {
+          name: "code",
+          label: "Country Code",
+          type: "text",
+          placeholder: "Enter Country Code",
+        },
+        {
+          name: "name",
+          label: "Country Name",
+          type: "text",
+          placeholder: "Enter Country Name",
+        },
+      ],
+    },
+    state: {
+      label: "State",
+      columns: [
+        { key: "name", label: "State Name" },
+        {
+          key: "countryId",
+          label: "Country Name",
+          render: (row) => getCountryName(row.countryId),
+          className: "text-custom-blue fw-medium",
+        },
+        {
+          key: "status",
+          label: "Status",
+          render: (row) => <StatusBadge status={row.status} />,
+        },
+        {
+          key: "action",
+          label: "Action",
+          render: (row) => (
+            <div className="d-flex justify-content-center gap-3 action-icons-container">
+              <FiEdit2
+                className="action-icon icon-edit"
+                onClick={() => handleEdit(row)}
+                title="Edit"
+              />
+              <FiTrash2
+                className="action-icon icon-delete"
+                onClick={() => handleDelete(row)}
+                title="Delete"
+              />
+              <label
+                className="ios-toggle"
+                title="Toggle Status"
+                style={{ margin: 0 }}
+              >
+                <input
+                  type="checkbox"
+                  checked={row.status === "Active"}
+                  onChange={() => handleToggleStatus(row)}
+                />
+                <span className="ios-slider"></span>
+              </label>
+            </div>
+          ),
+        },
+      ],
+      filters: [
+        // {
+        //   filterKey: "countryId",
+        //   placeholder: "Select Country",
+        //   options: countryOptions,
+        // },
+      ],
+      formFields: [
+        {
+          name: "countryId",
+          label: "Country Name",
+          type: "select",
+          placeholder: "Select Country Name",
+          options: countryOptions,
+        },
+        {
+          name: "code",
+          label: "State Code",
+          type: "text",
+          placeholder: "Enter State Code",
+        },
+        {
+          name: "name",
+          label: "State Name",
+          type: "text",
+          placeholder: "Enter State Name",
+        },
+      ],
+    },
+    city: {
+      label: "City",
+      columns: [
+        { key: "name", label: "City Name" },
+        {
+          key: "stateId",
+          label: "State Name",
+          render: (row) => getStateName(row.stateId),
+          className: "text-custom-blue fw-medium",
+        },
+        {
+          key: "countryId",
+          label: "Country Name",
+          render: (row) => getCountryName(row.countryId),
+          className: "text-custom-blue fw-medium",
+        },
+        {
+          key: "status",
+          label: "Status",
+          render: (row) => <StatusBadge status={row.status} />,
+        },
+        {
+          key: "action",
+          label: "Action",
+          render: (row) => (
+            <div className="d-flex justify-content-center gap-3 action-icons-container">
+              <FiEdit2
+                className="action-icon icon-edit"
+                onClick={() => handleEdit(row)}
+                title="Edit"
+              />
+              <FiTrash2
+                className="action-icon icon-delete"
+                onClick={() => handleDelete(row)}
+                title="Delete"
+              />
+              <label
+                className="ios-toggle"
+                title="Toggle Status"
+                style={{ margin: 0 }}
+              >
+                <input
+                  type="checkbox"
+                  checked={row.status === "Active"}
+                  onChange={() => handleToggleStatus(row)}
+                />
+                <span className="ios-slider"></span>
+              </label>
+            </div>
+          ),
+        },
+      ],
+      filters: [
+        // {
+        //   filterKey: "countryId",
+        //   placeholder: "Select Country",
+        //   options: countryOptions,
+        // },
+        // {
+        //   filterKey: "stateId",
+        //   placeholder: "Select State",
+        //   options: filteredStateOptions,
+        // },
+      ],
+      formFields: [
+        {
+          name: "countryId",
+          label: "Country Name",
+          type: "select",
+          placeholder: "Select Country Name",
+          options: countryOptions,
+        },
+        {
+          name: "stateId",
+          label: "State Name",
+          type: "select",
+          placeholder: "Select State Name",
+          options: stateOptions,
+        },
+        {
+          name: "name",
+          label: "City Name",
+          type: "text",
+          placeholder: "Enter City Name",
+        },
+      ],
+    },
+  };
+  const handleToggleStatus = async (row) => {
+    const newStatus = row.status !== "Active"; // convert to boolean
+
+    const res = await toggleStatus(endpointMap[activeTab], row.id, newStatus);
+
+    if (res.success) {
+      showPopup(
+        "Success!",
+        `${currentConfig.label} ${
+          newStatus ? "enabled" : "disabled"
+        } successfully!`,
+      );
+    } else {
+      showPopup("Error!", "Failed to update status", "error");
+    }
+  };
+
+  const currentConfig = tabsConfig[activeTab];
+  const getCountryName = (id) =>
+    countries.find((c) => c.id === id)?.name || "-";
+  const getStateName = (id) => states.find((s) => s.id === id)?.name || "-";
+
+  const filteredData = useMemo(() => {
+    const data = apiData.filter((item) => {
+      const matchSearch =
+        item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.code &&
+          item.code.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchFilter = Object.entries(filterValues).every(([key, val]) =>
+        !val ? true : item[key] === val,
+      );
+      return matchSearch && matchFilter;
+    });
+    return data.sort((a, b) => a.name?.localeCompare(b.name));
+  }, [apiData, searchTerm, filterValues]);
+
+  const paginatedData = filteredData.slice(0, visibleCount);
+  const loadMore = () => {
+    if (visibleCount >= filteredData.length) return;
+    setIsFetching(true);
+    setTimeout(() => {
+      setVisibleCount((prev) => prev + 10);
+      setIsFetching(false);
+    }, 1000);
+  };
+
+  const onSubmit = async (data) => {
+    const endpoint = endpointMap[activeTab];
+    const payload = {
+      id: editingId,
+      code: data.code,
+      name: data.name,
+      countryId: data.countryId,
+      stateId: data.stateId,
+      createdBy: "Admin",
+      updatedBy: "Admin",
+    };
+    try {
+      if (editingId) {
+        await update(endpoint, editingId, payload);
+        showPopup("Success!", `${currentConfig.label} updated successfully!`);
+      } else {
+        await create(endpoint, payload);
+        showPopup("Success!", `${currentConfig.label} added successfully!`);
+      }
+      setIsModalOpen(false);
+      reset();
+      setEditingId(null);
+    } catch (error) {
+      showPopup("Error!", "Failed to save. Please try again.", "error");
+    }
+  };
+
+  return (
+    <div className="container-fluid page-wrapper">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .page-wrapper { background-color: #f8fafc; min-height: 100vh; padding: 24px 30px; }
+        .text-custom-blue { color: #4F7094 !important; }
+        .action-icons-container { align-items: center; }
+        .action-icon { cursor: pointer; width: 1.125rem; height: 1.125rem; transition: opacity 0.2s; }
+        .icon-edit { color: #f59e0b; }
+        .icon-view { color: #3b82f6; }
+        .icon-delete { color: #ef4444; }
+        .status-badge-style { background: #06A84D; padding: 6px 16px; border-radius: 8px; font-size: 13px; min-width: 100px; height: 32px; }
+        
+        .ios-toggle { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+        .ios-toggle input { opacity: 0; width: 0; height: 0; }
+        .ios-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color:  #9ca3af; transition: .4s; border-radius: 24px; }
+        .ios-slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .ios-toggle input:checked + .ios-slider { background-color: #34c759; }
+        .ios-toggle input:checked + .ios-slider:before { transform: translateX(20px); }
+        
+        .tab-btn-custom { flex: 1; border: none; background: none; border-bottom: 2px solid transparent; padding: 12px 5px; font-weight: 600; color: #64748b; transition: all 0.3s; font-size: 14px; }
+        .tab-btn-custom.active { color: #1a56a6; border-bottom: 2px solid #1a56a6; }
+        
+        .filter-row { 
+        display: flex; 
+        justify-content: space-between; /* இதான் சர்ச் பாரை வலது பக்கம் தள்ளும் */
+        align-items: center; 
+        gap: 15px; 
+        margin-bottom: 1rem;
+        width: 100%; 
+        position: relative;
+        z-index: 100;
+      }
+
+      .filters-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        flex: 1; 
+      }
+
+      .search-container {
+        width: 300px; 
+      }
+
+
+
+        @media (max-width: 768px) {
+          .page-wrapper { 
+    padding: 15px 20px; 
+    height: auto; 
+    min-height: 100%;
+    overflow-y: visible; 
+  }
+  .outlet-wrapper.mobile-scroll {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch; 
+  }
+     .filter-row { 
+          flex-direction: column; 
+          align-items: stretch; /* மொபைலில் எல்லாம் ஒரே அளவில் நீளும் */
+        }
+        
+        .search-container {
+          width: 100%; /* டிராப்டவுன் போலவே 100% அகலம் */
+        }
+
+        .filters-group {
+          width: 100%;
+        }
+
+        .filter-item {
+          max-width: 100% !important; 
+          flex: 1 1 100% !important;
+        }
+          h2 { font-size: 1.25rem !important; }
+          .tab-btn-custom { font-size: 13px; padding: 10px 2px; }
+          
+          .add-btn { font-size: 12px !important; padding: 8px 12px !important; }
+        }
+
+        @media (max-width: 480px) {
+          h2 { font-size: 1.1rem !important; }
+          .tab-btn-custom { font-size: 12px; }
+          .status-badge-style { font-size: 11px; min-width: 80px; height: 28px; }
+        }
+      `}</style>
+
+      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+          <h2 className="fw-bold mb-1 text-dark" style={{ fontSize: "22px" }}>
+            General
+          </h2>
+          <div
+            className="d-flex align-items-center gap-2"
+            style={{ fontSize: "12px", color: "#94a3b8" }}
+          >
+            <FiHome size={14} /> / Configuration /{" "}
+            <span className="fw-medium text-dark">{currentConfig.label}</span>
+          </div>
+        </div>
+        <button
+          className="btn text-white d-flex align-items-center gap-2 border-0 shadow-sm add-btn"
+          style={{
+            backgroundColor: "#1a56a6",
+            padding: "10px 18px",
+            borderRadius: "6px",
+            fontSize: "14px",
+          }}
+          onClick={() => {
+            reset();
+            setEditingId(null);
+            setIsModalOpen(true);
+          }}
+        >
+          <FiPlus /> Add {currentConfig.label}
+        </button>
+      </div>
+
+      <div className="card border-1 shadow-sm p-3 rounded-3">
+        {/* Tabs */}
+        <div className="d-flex border-bottom mb-3 w-100 overflow-auto">
+          {Object.keys(tabsConfig).map((tabKey) => (
+            <button
+              key={tabKey}
+              className={`tab-btn-custom ${activeTab === tabKey ? "active" : ""}`}
+              onClick={() => {
+                setActiveTab(tabKey);
+                setSearchTerm("");
+                setFilterValues({});
+                reset();
+              }}
+            >
+              {tabsConfig[tabKey].label}
+            </button>
+          ))}
+        </div>
+
+        <div className="filter-row">
+          <div className="filters-group">
+            {currentConfig.filters.map((filter, index) => (
+              <div
+                key={index}
+                className="filter-item"
+                style={{
+                  minWidth: "160px",
+                  flex: "1 1 auto",
+                  maxWidth: "200px",
+                }}
+              >
+                <ReusableDropdown
+                  placeholder={filter.placeholder}
+                  options={filter.options}
+                  value={filterValues[filter.filterKey] || ""}
+                  onChange={(val) =>
+                    setFilterValues((prev) => ({
+                      ...prev,
+                      [filter.filterKey]: val,
+                    }))
+                  }
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="search-container">
+            <ReusableSearch
+              placeholder={`Search ${currentConfig.label}...`}
+              value={searchTerm}
+              onChange={setSearchTerm}
+            />
+          </div>
+        </div>
+
+        {(filteredData && filteredData.length > 0) || loading ? (
+          <ReusableTable
+            columns={currentConfig.columns}
+            data={paginatedData}
+            isFetching={loading || isFetching}
+            onLoadMore={loadMore}
+          />
+        ) : (
+          <div className="text-center py-5 rounded-3 bg-light text-muted">
+            No records found
+          </div>
+        )}
+      </div>
+
+      <ResuableForm
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          reset();
+          setEditingId(null);
+        }}
+        title={
+          editingId
+            ? `Edit ${currentConfig.label}`
+            : `Add ${currentConfig.label}`
+        }
+        submitText={
+          editingId
+            ? `Update ${currentConfig.label}`
+            : `Create ${currentConfig.label}`
+        }
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        {currentConfig.formFields.map((field, index) => (
+          <div className="mb-3" key={index}>
+            <label className="form-label fw-medium text-dark small mb-1">
+              {field.label}
+            </label>
+            {field.type === "text" ? (
+              <TextField
+                placeholder={field.placeholder}
+                fullWidth
+                size="small"
+                variant="outlined"
+                error={!!errors[field.name]}
+                helperText={errors[field.name]?.message}
+                {...register(field.name, {
+                  required: `${field.label} is required`,
+                  onChange: (e) => {
+                    if (field.name === "code")
+                      e.target.value = e.target.value.toUpperCase();
+                  },
+                })}
+                sx={{ "& .MuiOutlinedInput-root": { borderRadius: "10px" } }}
+              />
+            ) : (
+              <div className="d-flex flex-column">
+                <input
+                  type="hidden"
+                  {...register(field.name, {
+                    required: `${field.label} is required`,
+                  })}
+                />
+                <ReusableDropdown
+                  placeholder={field.placeholder}
+                  options={field.options}
+                  value={watch(field.name) || ""}
+                  error={!!errors[field.name]}
+                  onChange={(val) => {
+                    setValue(field.name, val, { shouldValidate: true });
+                    if (field.name === "countryId") setValue("stateId", "");
+                  }}
+                  disabled={field.name === "stateId" && !watch("countryId")}
+                />
+                {errors[field.name] && (
+                  <span className="text-danger small mt-1 ms-2">
+                    {errors[field.name]?.message}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </ResuableForm>
+      <ReusableConfirm
+        isOpen={isConfirmOpen}
+        title="Confirm Deletion"
+        message={`Are you sure you want to delete ${deleteItem?.name || "this item"}?`}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setIsConfirmOpen(false)}
+      />
+      <ReusablePopup
+        isOpen={popupState.isOpen}
+        onClose={() => setPopupState((prev) => ({ ...prev, isOpen: false }))}
+        title={popupState.title}
+        message={popupState.message}
+        type={popupState.type}
+      />
+    </div>
+  );
+};
+
+export default General;

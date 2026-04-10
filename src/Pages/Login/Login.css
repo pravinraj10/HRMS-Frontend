@@ -1,0 +1,30 @@
+.login-img {
+  width: 100%;
+  height: 100vh;
+  object-fit: cover; /* use 'contain' if you don't want cropping */
+}
+.welcomeBackTxt{
+    color: #757575;
+    size: 12.8px;
+    font-weight: 400;
+}
+.continueTxt{
+    color: #424242;
+    font-weight: 700;
+    font-size: 31.25px;
+}
+.borderRadius15{
+    border-radius: 15px !important;
+}
+.forgetTxt{
+    font-weight: 400;
+    font-size: 14px;
+    color: #616161;
+    cursor: pointer;
+}
+.loginBtn{
+    background-color: #1976D2 !important;
+    border-radius: 35px !important;
+    color: white;
+    height: 55px;
+}
