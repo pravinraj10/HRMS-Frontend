@@ -1,0 +1,214 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Inter:wght@400;500;600&display=swap');
+
+.status-history-wrapper {
+  padding: 24px 30px;
+  background-color: transparent;
+  min-height: 100vh;
+}
+
+.page-main-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1b;
+  margin-bottom: 4px;
+   font-family: 'Roboto', sans-serif;
+}
+
+.breadcrumb-container {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.btn-export-top {
+  background-color: white;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* Stats Header Card */
+.stats-header-card {
+  background: white;
+  padding: 24px 30px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.stats-profile-img img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.welcome-text {
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24px;
+  color: #474747;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-icon-small {
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.stats-subtext {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 21px;
+  color: #A1A1A1;
+}
+
+
+.highlight-blue {
+  color: #136DEC;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.btn-header-action {
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+}
+
+.btn-job { background-color: #136DEC; }
+.btn-emp { background-color: #03C95A; }
+
+
+/* Main Content Card */
+.status-history-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.table-controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.controls-left {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.dropdown-item-wrap {
+  min-width: 150px;
+}
+
+.controls-right {
+  flex-grow: 1;
+  max-width: 400px;
+}
+
+/* Table Specific Styling */
+.status-table-container .rt-container {
+  border: 1px solid #CFD6E8 !important; /* Added 1px #CFD6E8 border */
+  border-radius: 12px;
+  margin-top: 20px;
+  max-height: calc(100vh - 400px);
+}
+
+.status-table-container .rt-table {
+  border-collapse: separate;
+}
+
+.status-table-container .rt-th {
+  background-color: #E8E8E8 !important;
+  color: #6B7280 !important;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
+  text-align: center !important; 
+  padding: 16px;
+  font-size: 13px;
+}
+
+
+.status-table-container .rt-td {
+  padding: 20px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.col-id {
+  font-family: 'Roboto', sans-serif !important;
+  font-weight: 500 !important;
+  color: #212121 !important;
+}
+
+.col-name {
+  color: #212121 !important;
+  font-weight: 400 !important; 
+}
+
+.col-generic {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 400 !important;
+  color: #6B7280 !important;
+}
+
+.view-link {
+  font-family: 'Roboto', sans-serif;
+  color: #136DEC;
+  font-weight: 400 !important; 
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+
+/* Responsive Font Reduction */
+@media screen and (max-width: 1200px) {
+  .status-history-wrapper {
+    padding: 20px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .page-main-title { font-size: 20px; }
+  .welcome-text { font-size: 18px; }
+  .stats-header-card, .status-history-card { padding: 20px; }
+  
+  /* Reduction of fonts as requested */
+  .status-table-container .rt-th { font-size: 12px; }
+  .status-table-container .rt-td { font-size: 12px; }
+  .stats-subtext { font-size: 12px; }
+  .btn-header-action { font-size: 12px; padding: 8px 15px; }
+}
+
+@media screen and (max-width: 480px) {
+  .header-top-row {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 15px;
+  }
+  .controls-right {
+    max-width: 100%;
+  }
+}

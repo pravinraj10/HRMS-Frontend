@@ -1,0 +1,33 @@
+{
+  "employees": [
+    {
+      "id": "EMP_12547",
+      "name": "Rasick 2001",
+      "department": "Sales",
+      "designation": "Manager",
+      "email": "rasick908@gmail.com",
+      "phone": "9876543211",
+      "status": "Active",
+      "gender": "Male",
+      "dob": "2000-02-21",
+      "joiningDate": "5554-05-04",
+      "manager": "Alice Smith",
+      "shift": "Evening",
+      "address": "address",
+      "emergencyContact": "8855555555",
+      "profilePhoto": "cargo4.jfif",
+      "idProofs": [
+        {
+          "Aadhar": "AWB Import 4.pdf"
+        },
+        {
+          "Pan Card": "PO 1 1.pdf"
+        },
+        {
+          "Resume": "EX 464 INV.pdf"
+        }
+      ]
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

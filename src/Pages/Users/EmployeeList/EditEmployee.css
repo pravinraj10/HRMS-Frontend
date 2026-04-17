@@ -1,0 +1,276 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+.edit-employee-wrapper {
+  padding: 24px 30px;
+  background-color: transparent !important;
+  min-height: calc(100vh - 80px);
+  font-family: 'Inter', sans-serif;
+  overflow: hidden; /* Prevent wrapper scroll */
+}
+
+.edit-employee-form-scroll {
+  max-height: calc(100vh - 330px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px 30px 40px 30px; /* Aligned with header side padding */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.edit-employee-form-scroll::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.edit-employee-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.breadcrumb-container {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.btn-export-top {
+  background-color: white;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-export-top:hover {
+  background-color: #f1f5f9;
+}
+
+/* Profile header bar */
+.profile-bar-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 0px; /* No horizontal padding to align with content if needed, or 0 to align text with form labels */
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 30px;
+}
+
+.profile-avatar img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.verified-badge {
+  color: #10b981;
+  font-size: 14px;
+}
+
+.profile-emp-id {
+  font-size: 13px;
+  color: #A1A1A1;
+}
+
+/* Section Cards */
+.edit-section-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 30px;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.section-header {
+  border-bottom: none; /* Ensure no underlying border */
+}
+
+.section-title {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 700; 
+  color: #136DEC;
+}
+
+.btn-edit-icon {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.btn-edit-icon:hover {
+  color: #136DEC;
+}
+
+.form-label-custom {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 0px;
+  color: #0D121C;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.form-label-custom span {
+  color: #ef4444; 
+  margin-left: 3px;
+}
+
+/* Doc items */
+.document-list-item {
+  border-color: #e2e8f0 !important;
+}
+
+.doc-title {
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.doc-subtitle {
+  font-size: 12px;
+}
+
+.update-doc-btn {
+  background-color: #f1f5f9;
+  border-color: transparent;
+  color: #136DEC !important;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.update-doc-btn:hover {
+  background-color: #e2e8f0;
+  border-color: transparent;
+}
+
+
+/* Actions */
+.centered-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 40px; 
+  margin-bottom: 30px;
+}
+
+.save-btn {
+  background-color: #136DEC;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 40px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.save-btn:hover:not(:disabled) {
+  background-color: #0f5bb8;
+}
+
+.save-btn:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.cancel-line-btn {
+  background-color: white;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 10px 40px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.cancel-line-btn:hover {
+  background-color: #f1f5f9;
+}
+
+/* Responsive adjust */
+@media screen and (max-width: 768px) {
+  .edit-employee-wrapper {
+    padding: 15px 20px;
+  }
+
+  .edit-employee-form-scroll {
+    padding: 10px 0 20px 0; /* Remove/reduce side gap on mobile */
+    max-height: calc(100vh - 160px);
+  }
+
+  .edit-section-card {
+    padding: 20px;
+  }
+  
+  .edit-employee-title {
+    font-size: 20px;
+  }
+  
+  .section-title {
+    font-size: 14px;
+  }
+  
+  .form-label-custom {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  
+  .save-btn, .cancel-line-btn {
+    padding: 8px 30px;
+    font-size: 13px;
+  }
+
+  .document-list-item {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 15px;
+  }
+
+  .document-list-item .update-doc-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .header-actions-flex {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 15px;
+  }
+  
+  .btn-export-top {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  
+  .save-btn, .cancel-line-btn {
+    padding: 8px 20px;
+    font-size: 12px;
+    width: 100%;
+  }
+
+  .centered-actions {
+    flex-direction: column;
+  }
+}

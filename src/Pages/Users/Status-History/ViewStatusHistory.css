@@ -1,0 +1,220 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+.view-status-history-wrapper {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
+  font-family: 'Roboto', sans-serif !important;
+}
+
+.vsh-header {
+  padding: 0;
+  margin-bottom: 32px;
+}
+
+.view-status-history-wrapper .page-main-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.view-status-history-wrapper .breadcrumb-container {
+  font-size: 13px;
+  color: #6B7280;
+  font-family: 'Roboto', sans-serif;
+}
+
+.view-status-history-wrapper .breadcrumb-container span.fw-medium {
+  color: #111827;
+}
+
+.vsh-scroll-container {
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 0 40px 0; 
+}
+
+/* Hide scrollbar */
+.vsh-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+.vsh-scroll-container {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.vsh-profile-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px; /* Increased gap slightly */
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.vsh-profile-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.vsh-profile-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.current-status-title {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 24px;
+  color: #474747;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  vertical-align: middle;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #10B981;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.emp-id-text {
+  font-size: 14px;
+  color: #A1A1A1; /* User requested employee id color #A1A1A1 */
+  margin: 6px 0 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+.btn-deactivate {
+  background-color: #EF4444;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px; /* User requested deactivate button radius 8px */
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.vsh-history-section {
+  padding: 0 50px; /* User requested more gap in left and right after current status */
+}
+
+.vsh-history-section h4 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 32px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.vsh-timeline {
+  position: relative;
+  padding-left: 28px;
+  margin-left: 12px;
+}
+
+.vsh-timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #CFD6E8; /* User requested border 2px #CFD6E8 */
+}
+
+.vsh-timeline-item {
+  position: relative;
+  margin-bottom: 24px;
+  max-width: 100%;
+}
+
+.vsh-timeline-icon {
+  position: absolute;
+  left: -40px;
+  top: 24px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.vsh-timeline-icon.gold { color: #F59E0B; }
+.vsh-timeline-icon.blue { color: #3B82F6; }
+.vsh-timeline-icon.gray { color: #374151; }
+.vsh-timeline-icon.green { color: #10B981; }
+
+.vsh-timeline-card {
+  border: 1px solid #E5E7EB;
+  border-radius: 30px; /* User requested card border radius 30px */
+  padding: 24px 32px;
+  background-color: #ffffff;
+  transition: all 0.2s ease-in-out;
+}
+
+.vsh-timeline-date {
+  font-size: 13px;
+  color: #6B7280; /* User requested date color #6B7280 */
+  margin-bottom: 8px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.vsh-timeline-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #212121; /* User requested title color #212121 */
+  margin-bottom: 8px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.vsh-timeline-desc {
+  font-size: 15px;
+  color: #6B728080; /* User requested desc color #6B728080 */
+  margin: 0;
+  line-height: 1.5;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+  .vsh-header, .vsh-scroll-container, .vsh-history-section {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  .current-status-title {
+    font-size: 18px;
+  }
+
+  .vsh-timeline-title {
+    font-size: 16px;
+  }
+
+  .vsh-timeline-desc {
+    font-size: 14px;
+  }
+  
+  .vsh-timeline-card {
+    border-radius: 20px;
+    padding: 20px;
+  }
+}

@@ -1,0 +1,289 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+.add-employee-wrapper {
+  padding: 24px 30px;
+  background-color: transparent !important;
+  min-height: calc(100vh - 80px);
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+  /* Prevent wrapper scroll */
+}
+
+.add-employee-form-scroll {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px 60px 40px 60px;
+  /* Side gap specifically for form content */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge */
+}
+
+.add-employee-form-scroll::-webkit-scrollbar {
+  display: none;
+  /* Chrome/Safari */
+}
+
+.add-employee-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.breadcrumb-container {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.btn-export-top {
+  background-color: white;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-export-top:hover {
+  background-color: #f1f5f9;
+}
+
+.section-title {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  /* Bold for sections but keeping within theme */
+  color: #136DEC;
+  margin-bottom: 20px;
+  margin-top: 30px;
+}
+
+.section-title:first-child {
+  margin-top: 0;
+}
+
+.form-label-custom {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 0px;
+  color: #0D121C;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.form-label-custom span {
+  color: #ef4444;
+  margin-left: 3px;
+}
+
+/* Custom Dotted Box for Address / Uploads */
+.dotted-upload-box {
+  border: 3px dashed #cbd5e1;
+  /* Increased border thickness per request */
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  background: white;
+  min-height: 160px;
+}
+
+.dotted-upload-box .upload-info-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.dotted-upload-box .upload-sub-text {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+
+.dotted-upload-box.border-danger {
+  border-color: #ef4444 !important;
+}
+
+.upload-blue-btn {
+  background-color: #136DEC;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.upload-blue-btn:hover {
+  background-color: #0f5bb8;
+}
+
+/* Side button for documents */
+.doc-upload-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+/* Container to hold both document fields for equal height mapping */
+.docs-column-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.doc-upload-container .MuiTextField-root {
+  flex-grow: 1;
+}
+
+.centered-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding-top: 10px;
+  margin-bottom: 20px;
+}
+
+.save-btn {
+  background-color: #136DEC;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 40px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.save-btn:hover:not(:disabled) {
+  background-color: #0f5bb8;
+}
+
+.save-btn:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.cancel-line-btn {
+  background-color: white;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 10px 40px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.cancel-line-btn:hover {
+  background-color: #f1f5f9;
+}
+
+/* Responsive adjust */
+@media screen and (max-width: 768px) {
+  .add-employee-wrapper {
+    padding: 15px 20px;
+  }
+
+  .add-employee-form-scroll {
+    padding: 10px 0 20px 0;
+    max-height: calc(100vh - 160px);
+  }
+
+  /* Specifically target the gap between uploads and documents stack */
+  .contact-info-row>.col-md-6+.col-md-6 {
+    margin-top: 40px;
+  }
+
+  .docs-column-wrapper {
+    height: auto;
+    justify-content: flex-start;
+    gap: 20px;
+  }
+
+  .doc-upload-container {
+    min-height: auto;
+    margin-bottom: 20px;
+  }
+
+  .add-employee-title {
+    font-size: 20px;
+  }
+
+  .section-title {
+    font-size: 14px;
+    margin-top: 20px;
+    margin-bottom: 12px;
+  }
+
+  .form-label-custom {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .save-btn,
+  .cancel-line-btn {
+    padding: 8px 30px;
+    font-size: 13px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .header-actions-flex {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 15px;
+  }
+
+  .btn-export-top {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .dotted-upload-box {
+    padding: 20px;
+  }
+
+  .dotted-upload-box .upload-info-text {
+    font-size: 13px;
+  }
+
+  .dotted-upload-box .upload-sub-text {
+    font-size: 11px;
+  }
+
+  .upload-blue-btn {
+    padding: 6px 16px;
+    font-size: 12px;
+  }
+
+  .save-btn,
+  .cancel-line-btn {
+    padding: 8px 20px;
+    font-size: 12px;
+    width: 100%;
+  }
+
+  .centered-actions {
+    flex-direction: column;
+    padding-top: 0px;
+    gap: 10px;
+  }
+}
