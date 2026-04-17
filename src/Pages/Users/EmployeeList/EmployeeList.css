@@ -1,0 +1,368 @@
+.employee-list-page {
+  padding: 24px 30px;
+  background-color: #f8fafc;
+  min-height: calc(100vh - 80px);
+  font-family: 'Inter', sans-serif;
+}
+
+.employee-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.employee-page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.breadcrumb-container {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.employee-header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-emp {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-add-job {
+  background-color: #136DEC !important;
+  color: white;
+}
+.btn-add-job:hover {
+  background-color: #0f5bb8 !important;
+}
+
+.btn-add-employee {
+  background-color: #03C95A !important;
+  color: white;
+}
+.btn-add-employee:hover {
+  background-color: #029d47 !important;
+}
+
+.btn-export {
+  background-color: white;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+.btn-export:hover {
+  background-color: #f1f5f9;
+}
+
+/* Matching Status & History export button style */
+.btn-export-top {
+  background-color: white;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  height: 38px;
+}
+
+.btn-export-top:hover {
+  background-color: #f1f5f9;
+}
+
+
+/* Card */
+.employee-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  overflow: visible !important;
+}
+
+/* Filter Row */
+.filter-controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 15px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 100;
+}
+
+.filter-group-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.filter-dropdown-wrapper {
+  min-width: 160px;
+  position: relative;
+  z-index: 100;
+}
+
+/* Fix stacking issue: first dropdown should be above the second, etc. */
+.filter-dropdown-wrapper:nth-child(1) { z-index: 103; }
+.filter-dropdown-wrapper:nth-child(2) { z-index: 102; }
+.filter-dropdown-wrapper:nth-child(3) { z-index: 101; }
+
+.btn-filter-action {
+  border: none;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-search-emp {
+  background-color: #136DEC !important;
+  color: white;
+}
+.btn-search-emp:hover {
+  background-color: #0f5bb8 !important;
+}
+
+.btn-clear-emp {
+  background-color: white;
+  color: #3b82f6;
+  border: 1px solid #3b82f6;
+}
+.btn-clear-emp:hover {
+  background-color: #eff6ff;
+}
+
+.search-bar-container {
+  width: 320px;
+}
+
+/* Table overrides to match image */
+/* Force ReusableTable header to be dark blue with white text if not already */
+.employee-card table thead th,
+.employee-card .reusable-table-header th,
+.employee-card .rt-th {
+  background-color: #124FA5 !important;
+  color: white !important;
+  font-weight: 500;
+  border-bottom: none;
+}
+
+.employee-card .table-hover tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.emp-id-td, .emp-name-td, .emp-other-td {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  line-height: 21px !important;
+  text-align: center !important;
+  white-space: normal !important; /* Allow natural wrapping at spaces */
+}
+
+.emp-id-td {
+  color: #212121 !important;
+}
+
+.emp-name-td {
+  color: #212121 !important;
+}
+
+.emp-other-td {
+  color: #6B7280 !important;
+}
+
+/* Force table to respect container width but allow scrolling if needed in responsive */
+.employee-card .rt-container {
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+}
+
+/* Explicitly make the Y scrollbar visible for the table container */
+.employee-card .rt-container::-webkit-scrollbar {
+  display: block !important;
+  width: 6px;
+  height: 6px;
+}
+
+.employee-card .rt-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.employee-card .rt-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.employee-card table {
+  white-space: normal !important;
+  table-layout: auto;
+  width: 100% !important;
+}
+
+/* Status Badge */
+.emp-status-badge {
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 90px;
+  color: white;
+}
+
+.emp-status-active {
+  background-color: #06A84D !important;
+}
+
+.emp-status-inactive {
+  background-color: #E3B80C !important;
+}
+
+/* Action Icons */
+.emp-action-icon {
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s;
+}
+
+.emp-action-icon:hover {
+  transform: scale(1.1);
+}
+
+.icon-view-blue {
+  color: #136DEC !important;
+}
+
+.icon-edit-green {
+  color: #08A94F !important;
+}
+
+.icon-delete-red {
+  color: #E70D0D !important;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 1200px) {
+  .search-bar-container {
+    width: 250px;
+  }
+}
+
+@media screen and (max-width: 991px) {
+  .filter-controls-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .search-bar-container {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .employee-list-page {
+    padding: 15px 20px;
+  }
+  
+  .employee-header-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .employee-header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .btn-emp {
+    flex: 1 1 auto;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+  
+  .employee-card {
+    padding: 15px;
+  }
+  
+  .filter-dropdown-wrapper {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  /* Reduce font size across the card */
+  .employee-card,
+  .employee-card .rd-header-text,
+  .employee-card .rs-input,
+  .employee-card table td,
+  .employee-card table th,
+  .btn-filter-action {
+    font-size: 13px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .employee-page-title {
+    font-size: 20px;
+  }
+  .employee-breadcrumbs {
+    font-size: 12px;
+  }
+  .btn-emp {
+    font-size: 12px;
+    width: 100%;
+  }
+  
+  /* Even smaller text */
+  .employee-card,
+  .employee-card .rd-header-text,
+  .employee-card .rs-input,
+  .employee-card table td,
+  .employee-card table th,
+  .emp-status-badge,
+  .btn-filter-action {
+    font-size: 12px !important;
+  }
+
+  .emp-status-badge {
+    padding: 4px 12px;
+    min-width: 70px;
+  }
+
+  .btn-filter-action {
+    width: 100%;
+  }
+}

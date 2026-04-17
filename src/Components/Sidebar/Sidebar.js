@@ -8,18 +8,22 @@ export const getMenuItems = async () => {
         },
         {
             "id": 2,
-            "label": "Users",
+            "label": "Employee",
             "icon": "bi-people",
             "children": [
                 {
                     "id": 21,
-                    "label": "User List",
-                    "url": "/users/list"
+                    "label": "Employee List",
+                    "url": "/employee/list"
                 },
                 {
                     "id": 22,
                     "label": "Add User",
                     "url": "/users/add"
+                },{
+                    "id":23,
+                    "label":"Status & History",
+                    "url":"/employee/status"
                 }
             ]
         },
