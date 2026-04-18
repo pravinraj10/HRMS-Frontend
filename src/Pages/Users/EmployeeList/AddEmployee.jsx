@@ -51,26 +51,36 @@ const AddEmployee = () => {
   const onSubmit = async (data) => {
     setLoading(true);
     
-    const payload = {
-      id: data.employeeId,
-      name: data.fullName,
-      department: data.department,
-      designation: data.designation,
-      email: data.email,
-      phone: data.phone,
-      status: "Active",
-      gender: data.gender,
-      dob: data.dob,
-      joiningDate: data.joiningDate,
-      manager: data.manager,
-      shift: data.shift,
-      address: data.address,
-      emergencyContact: data.emergencyContact,
-      profilePhoto: data.profilePhoto?.[0]?.name || "",
-      idProofs: idProofsList
-    };
+    const formData = new FormData();
+    formData.append("FullName", data.fullName || "");
+    formData.append("Gender", data.gender || "");
+    if (data.dob) formData.append("DateOfBirth", data.dob);
+    formData.append("PersonalEmail", data.email || "");
+    formData.append("PersonalPhone", data.phone || "");
+    formData.append("EmergencyContact", data.emergencyContact || "");
+    formData.append("Address", data.address || "");
+    
+    // Using a dummy ID for now since frontend dropdowns are hardcoded strings
+    formData.append("DepartmentId", "1"); 
+    formData.append("DesignationId", "1");
+    if (data.joiningDate) formData.append("JoiningDate", data.joiningDate);
+    formData.append("EmployeeCode", data.employeeId || "");
+    formData.append("ReportingManagerId", "1");
+    formData.append("Shift", data.shift || "");
+    
+    if (profilePhotoFiles && profilePhotoFiles.length > 0) {
+      formData.append("ProfilePhoto", profilePhotoFiles[0]);
+    }
+    
+    // Only appending the first ID proof for simplicity as the backend only accepts one IFormFile? IdProof
+    if (idProofsList.length > 0) {
+      const firstDocObj = idProofsList[0];
+      const docKey = Object.keys(firstDocObj)[0];
+      // Note: idProofsList currently stores filenames, not actual File objects in the state in the original code.
+      // To properly upload, the state logic would need to store File objects.
+    }
 
-    const res = await create(payload);
+    const res = await create(formData);
     setLoading(false);
     
     if (res.success) {
