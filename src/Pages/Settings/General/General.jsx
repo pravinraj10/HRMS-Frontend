@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 import ReusablePopup from "../../../Reusbale/ReusablePopup";
 import ResuableForm from "../../../Reusbale/ReusableForm";
+import "./General.css";
 
 const General = () => {
   const [activeTab, setActiveTab] = useState("country");
@@ -133,10 +134,9 @@ const General = () => {
 
   const StatusBadge = ({ status }) => (
     <span
-      className="d-inline-flex align-items-center justify-content-center text-white fw-bold status-badge-style"
-      style={{
-        backgroundColor: status === "Active" ? "#22c55e" : "#ef4444",
-      }}
+      className={`d-inline-flex align-items-center justify-content-center text-white fw-bold status-badge-style ${
+        status === "Active" ? "status-badge-active" : "status-badge-inactive"
+      }`}
     >
       {status}
     </span>
@@ -175,7 +175,6 @@ const General = () => {
               <label
                 className="ios-toggle"
                 title="Toggle Status"
-                style={{ margin: 0 }}
               >
                 <input
                   type="checkbox"
@@ -237,7 +236,6 @@ const General = () => {
               <label
                 className="ios-toggle"
                 title="Toggle Status"
-                style={{ margin: 0 }}
               >
                 <input
                   type="checkbox"
@@ -251,11 +249,11 @@ const General = () => {
         },
       ],
       filters: [
-        // {
-        //   filterKey: "countryId",
-        //   placeholder: "Select Country",
-        //   options: countryOptions,
-        // },
+        {
+          filterKey: "countryId",
+          placeholder: "Select Country",
+          options: countryOptions,
+        },
       ],
       formFields: [
         {
@@ -318,7 +316,6 @@ const General = () => {
               <label
                 className="ios-toggle"
                 title="Toggle Status"
-                style={{ margin: 0 }}
               >
                 <input
                   type="checkbox"
@@ -332,16 +329,16 @@ const General = () => {
         },
       ],
       filters: [
-        // {
-        //   filterKey: "countryId",
-        //   placeholder: "Select Country",
-        //   options: countryOptions,
-        // },
-        // {
-        //   filterKey: "stateId",
-        //   placeholder: "Select State",
-        //   options: filteredStateOptions,
-        // },
+        {
+          filterKey: "countryId",
+          placeholder: "Select Country",
+          options: countryOptions,
+        },
+        {
+          filterKey: "stateId",
+          placeholder: "Select State",
+          options: filteredStateOptions,
+        },
       ],
       formFields: [
         {
@@ -441,115 +438,21 @@ const General = () => {
   };
 
   return (
-    <div className="container-fluid page-wrapper">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .page-wrapper { background-color: #f8fafc; min-height: 100vh; padding: 24px 30px; }
-        .text-custom-blue { color: #4F7094 !important; }
-        .action-icons-container { align-items: center; }
-        .action-icon { cursor: pointer; width: 1.125rem; height: 1.125rem; transition: opacity 0.2s; }
-        .icon-edit { color: #f59e0b; }
-        .icon-view { color: #3b82f6; }
-        .icon-delete { color: #ef4444; }
-        .status-badge-style { background: #06A84D; padding: 6px 16px; border-radius: 8px; font-size: 13px; min-width: 100px; height: 32px; }
-        
-        .ios-toggle { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
-        .ios-toggle input { opacity: 0; width: 0; height: 0; }
-        .ios-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color:  #9ca3af; transition: .4s; border-radius: 24px; }
-        .ios-slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .ios-toggle input:checked + .ios-slider { background-color: #34c759; }
-        .ios-toggle input:checked + .ios-slider:before { transform: translateX(20px); }
-        
-        .tab-btn-custom { flex: 1; border: none; background: none; border-bottom: 2px solid transparent; padding: 12px 5px; font-weight: 600; color: #64748b; transition: all 0.3s; font-size: 14px; }
-        .tab-btn-custom.active { color: #1a56a6; border-bottom: 2px solid #1a56a6; }
-        
-        .filter-row { 
-        display: flex; 
-        justify-content: space-between; /* இதான் சர்ச் பாரை வலது பக்கம் தள்ளும் */
-        align-items: center; 
-        gap: 15px; 
-        margin-bottom: 1rem;
-        width: 100%; 
-        position: relative;
-        z-index: 100;
-      }
-
-      .filters-group {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        flex: 1; 
-      }
-
-      .search-container {
-        width: 300px; 
-      }
-
-
-
-        @media (max-width: 768px) {
-          .page-wrapper { 
-    padding: 15px 20px; 
-    height: auto; 
-    min-height: 100%;
-    overflow-y: visible; 
-  }
-  .outlet-wrapper.mobile-scroll {
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch; 
-  }
-     .filter-row { 
-          flex-direction: column; 
-          align-items: stretch; /* மொபைலில் எல்லாம் ஒரே அளவில் நீளும் */
-        }
-        
-        .search-container {
-          width: 100%; /* டிராப்டவுன் போலவே 100% அகலம் */
-        }
-
-        .filters-group {
-          width: 100%;
-        }
-
-        .filter-item {
-          max-width: 100% !important; 
-          flex: 1 1 100% !important;
-        }
-          h2 { font-size: 1.25rem !important; }
-          .tab-btn-custom { font-size: 13px; padding: 10px 2px; }
-          
-          .add-btn { font-size: 12px !important; padding: 8px 12px !important; }
-        }
-
-        @media (max-width: 480px) {
-          h2 { font-size: 1.1rem !important; }
-          .tab-btn-custom { font-size: 12px; }
-          .status-badge-style { font-size: 11px; min-width: 80px; height: 28px; }
-        }
-      `}</style>
-
+    <div className="page-wrapper">
       <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <div>
-          <h2 className="fw-bold mb-1 text-dark" style={{ fontSize: "22px" }}>
+          <h2 className="general-title">
             General
           </h2>
           <div
-            className="d-flex align-items-center gap-2"
-            style={{ fontSize: "12px", color: "#94a3b8" }}
+            className="d-flex align-items-center gap-2 breadcrumb-container"
           >
             <FiHome size={14} /> / Configuration /{" "}
             <span className="fw-medium text-dark">{currentConfig.label}</span>
           </div>
         </div>
         <button
-          className="btn text-white d-flex align-items-center gap-2 border-0 shadow-sm add-btn"
-          style={{
-            backgroundColor: "#1a56a6",
-            padding: "10px 18px",
-            borderRadius: "6px",
-            fontSize: "14px",
-          }}
+          className="btn text-white d-flex align-items-center gap-2 border-0 shadow-sm add-btn add-btn-custom"
           onClick={() => {
             reset();
             setEditingId(null);
@@ -560,7 +463,7 @@ const General = () => {
         </button>
       </div>
 
-      <div className="card border-1 shadow-sm p-3 rounded-3">
+      <div className="card border-1 shadow-sm rounded-3 general-card">
         {/* Tabs */}
         <div className="d-flex border-bottom mb-3 w-100 overflow-auto">
           {Object.keys(tabsConfig).map((tabKey) => (
@@ -584,12 +487,7 @@ const General = () => {
             {currentConfig.filters.map((filter, index) => (
               <div
                 key={index}
-                className="filter-item"
-                style={{
-                  minWidth: "160px",
-                  flex: "1 1 auto",
-                  maxWidth: "200px",
-                }}
+                className="filter-item filter-item-custom"
               >
                 <ReusableDropdown
                   placeholder={filter.placeholder}
