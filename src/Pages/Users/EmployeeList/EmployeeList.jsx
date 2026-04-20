@@ -7,6 +7,7 @@ import ReusableDropdown from "../../../Reusbale/ReusableDropdown";
 import ReusableSearch from "../../../Reusbale/ReusableSearch";
 import ReusableTable from "../../../Reusbale/ReusableTable";
 import ReusableConfirm from "../../../Reusbale/ReusableConfirm";
+import ReusablePopup from "../../../Reusbale/ReusablePopup";
 import { useCrudEmployee } from "../../../hooks/useCrudEmployee";
 import "./EmployeeList.css";
 
@@ -42,7 +43,7 @@ const statusOptions = [
 
 const EmployeeList = () => {
   const navigate = useNavigate();
-  const { employees, loading, remove } = useCrudEmployee();
+  const { employees, loading, remove, update } = useCrudEmployee();
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     department: "",
@@ -54,6 +55,16 @@ const EmployeeList = () => {
   const [isFetching, setIsFetching] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [deleteItem, setDeleteItem] = useState(null);
+  const [popupState, setPopupState] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "success",
+  });
+
+  const showPopup = (title, message, type = "success") => {
+    setPopupState({ isOpen: true, title, message, type });
+  };
 
   const handleDelete = (row) => {
     setDeleteItem(row);
@@ -62,9 +73,25 @@ const EmployeeList = () => {
 
   const handleConfirmDelete = async () => {
     if (!deleteItem) return;
-    await remove(deleteItem.id);
+    const res = await remove(deleteItem.id);
+    if (res.success) {
+      showPopup("Success!", "Employee deleted successfully!");
+    } else {
+      showPopup("Error!", "Failed to delete employee.", "error");
+    }
     setIsConfirmOpen(false);
     setDeleteItem(null);
+  };
+
+  const handleToggleStatus = async (row) => {
+    const newStatus = row.status === "Active" ? "Inactive" : "Active";
+    const payload = { ...row, status: newStatus };
+    const res = await update(row.id, payload);
+    if (res.success) {
+      showPopup("Success!", `Employee status updated to ${newStatus} successfully!`);
+    } else {
+      showPopup("Error!", "Failed to update employee status.", "error");
+    }
   };
 
   const columns = [
@@ -103,6 +130,14 @@ const EmployeeList = () => {
             title="Delete" 
             onClick={() => handleDelete(row)}
           />
+          <label className="ios-toggle" title="Toggle Status" style={{marginLeft: "8px"}}>
+            <input
+              type="checkbox"
+              checked={row.status === "Active"}
+              onChange={() => handleToggleStatus(row)}
+            />
+            <span className="ios-slider"></span>
+          </label>
         </div>
       ),
     },
@@ -192,9 +227,6 @@ const EmployeeList = () => {
                 onChange={(val) => handleFilterChange("status", val)}
               />
             </div>
-            <button className="btn-filter-action btn-search-emp">
-              <FiSearch /> Search
-            </button>
             <button
               className="btn-filter-action btn-clear-emp"
               onClick={() => {
@@ -238,6 +270,14 @@ const EmployeeList = () => {
         message={`Are you sure you want to delete ${deleteItem?.name || "this employee"}?`}
         onConfirm={handleConfirmDelete}
         onCancel={() => setIsConfirmOpen(false)}
+      />
+
+      <ReusablePopup
+        isOpen={popupState.isOpen}
+        onClose={() => setPopupState((prev) => ({ ...prev, isOpen: false }))}
+        title={popupState.title}
+        message={popupState.message}
+        type={popupState.type}
       />
     </div>
   );
