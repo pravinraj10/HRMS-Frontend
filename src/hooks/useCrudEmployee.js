@@ -10,7 +10,7 @@ export const useCrudEmployee = () => {
   const fetchEmployees = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.get(`${API_ENDPOINT}?t=${new Date().getTime()}`);
+      const response = await api.get(API_ENDPOINT);
       console.log("API Response:", response.data);
       // Simulate real-world fetch delay to display initial skeletal loading like General.jsx
       await new Promise(resolve => setTimeout(resolve, 800));
