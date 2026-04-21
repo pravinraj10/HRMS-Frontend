@@ -11,7 +11,6 @@ export const useCrudEmployee = () => {
     setLoading(true);
     try {
       const response = await api.get(API_ENDPOINT);
-      console.log("API Response:", response.data);
       // Simulate real-world fetch delay to display initial skeletal loading like General.jsx
       await new Promise(resolve => setTimeout(resolve, 800));
       // Map backend DTO to frontend expected properties
@@ -51,7 +50,7 @@ export const useCrudEmployee = () => {
 
   const update = async (id, payload) => {
     try {
-      
+
       await api.put(`${API_ENDPOINT}/${id}`, payload);
       await fetchEmployees();
       return { success: true };

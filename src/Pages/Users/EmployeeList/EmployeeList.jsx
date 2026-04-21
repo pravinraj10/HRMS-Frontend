@@ -43,7 +43,7 @@ const statusOptions = [
 
 const EmployeeList = () => {
   const navigate = useNavigate();
-  const { employees, loading, remove, update } = useCrudEmployee();
+  const { employees, loading, remove, searchEmployee } = useCrudEmployee();
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     department: "",
@@ -152,17 +152,13 @@ const EmployeeList = () => {
 
   const filteredData = useMemo(() => {
     return (employees || []).filter((item) => {
-      const matchSearch =
-        item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.id?.toLowerCase().includes(searchTerm.toLowerCase());
-
       const matchDepartment = !filters.department || item.department === filters.department;
       const matchRole = !filters.role || item.designation?.toLowerCase().includes(filters.role.toLowerCase());
       const matchStatus = !filters.status || item.status === filters.status;
 
-      return matchSearch && matchDepartment && matchRole && matchStatus;
+      return matchDepartment && matchRole && matchStatus;
     });
-  }, [searchTerm, filters, employees]);
+  }, [filters, employees]);
 
   const paginatedData = filteredData.slice(0, visibleCount);
 
@@ -232,6 +228,7 @@ const EmployeeList = () => {
               onClick={() => {
                 setFilters({ department: "", role: "", status: "" });
                 setSearchTerm("");
+                searchEmployee("");
               }}
             >
               Clear
