@@ -26,7 +26,8 @@ const AddEmployee = () => {
   
   const [departments, setDepartments] = useState([]);
   const [designations, setDesignations] = useState([]);
-
+  const { employees, searchEmployees } = useCrudEmployee();
+  const [search, setSearch] = useState("");
   useEffect(() => {
     const fetchDropdownData = async () => {
       try {
