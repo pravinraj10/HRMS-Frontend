@@ -6,6 +6,7 @@ const API_ENDPOINT = "/Employee";
 export const useCrudEmployee = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   const fetchEmployees = useCallback(async () => {
     setLoading(true);
@@ -37,7 +38,7 @@ export const useCrudEmployee = () => {
     fetchEmployees();
   }, [fetchEmployees]);
 
-  const create = async (payload) => {
+  const create = useCallback(async (payload) => {
     try {
       await api.post(API_ENDPOINT, payload);
       await fetchEmployees();
@@ -46,9 +47,9 @@ export const useCrudEmployee = () => {
       console.error("Create error:", err);
       return { success: false };
     }
-  };
+  }, [fetchEmployees]);
 
-  const update = async (id, payload) => {
+  const update = useCallback(async (id, payload) => {
     try {
 
       await api.put(`${API_ENDPOINT}/${id}`, payload);
@@ -58,9 +59,9 @@ export const useCrudEmployee = () => {
       console.error("Update error:", err);
       return { success: false };
     }
-  };
+  }, [fetchEmployees]);
 
-  const remove = async (id) => {
+  const remove = useCallback(async (id) => {
     try {
       await api.delete(`${API_ENDPOINT}/${id}`);
       await fetchEmployees();
@@ -69,18 +70,43 @@ export const useCrudEmployee = () => {
       console.error("Remove error:", err);
       return { success: false };
     }
-  };
+  }, [fetchEmployees]);
 
-  const getById = (id) => {
-    return employees.find((emp) => emp.id === id);
-  };
+  const searchEmployees = useCallback(async (query) => {
+    setSearchLoading(true);
+    try {
+      const response = await api.get(`${API_ENDPOINT}/search?search=${query}`);
+      const mappedData = response.data.map(emp => ({
+        id: emp.id,
+        employeeId: emp.employeeCode || "",
+        name: emp.fullName || "",
+        email: emp.personalEmail || "",
+        phone: emp.personalPhone || "",
+        status: emp.isActive ? "Active" : "Inactive",
+        department: emp.departmentName || "N/A",
+        designation: emp.designationName || "N/A",
+        profilePhoto: emp.profilePhoto || ""
+      }));
+      setEmployees(mappedData);
+    } catch (err) {
+      console.error("Search error:", err);
+    } finally {
+      setSearchLoading(false);
+    }
+  }, []);
+
+  const getById = useCallback((id) => {
+    return employees.find((emp) => String(emp.id) === String(id));
+  }, [employees]);
 
   return {
     employees,
     loading,
+    searchLoading,
     create,
     update,
     remove,
     getById,
+    search: searchEmployees,
   };
 };

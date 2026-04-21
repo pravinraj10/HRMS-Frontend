@@ -42,11 +42,11 @@ body {
 }
 
 .status-badge-active {
-  background-color: #22c55e !important;
+  background-color: #06A84D !important;
 }
 
 .status-badge-inactive {
-  background-color: #ef4444 !important;
+  background-color: #E3B80C !important;
 }
 
 .ios-toggle {

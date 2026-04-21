@@ -59,7 +59,16 @@ const Holiday = () => {
   const handleEdit = (row) => {
     setEditingItem(row);
     setValue("title", row.title);
-    setValue("holidayDate", row.date ? row.date.split("/").reverse().join("-") : ""); // Assuming date comes as DD/MM/YYYY
+    
+    let formattedDate = "";
+    if (row.date) {
+      const parts = row.date.split(/[\/-]/);
+      if (parts.length === 3) {
+        formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+    
+    setValue("holidayDate", formattedDate);
     setValue("description", row.description);
     setIsModalOpen(true);
   };
@@ -146,7 +155,7 @@ const Holiday = () => {
         <span
           className="d-inline-flex align-items-center justify-content-center text-white fw-bold status-badge-style"
           style={{
-            backgroundColor: row.status === "Active" ? "#22c55e" : "#ef4444",
+            backgroundColor: row.status === "Active" ? "#06A84D" : "#E3B80C",
           }}
         >
           {row.status}

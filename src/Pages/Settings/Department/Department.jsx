@@ -157,7 +157,7 @@ const Department = () => {
         <span
           className="d-inline-flex align-items-center justify-content-center text-white fw-bold status-badge-style"
           style={{
-            backgroundColor: row.isActive ? "#22c55e" : "#ef4444",
+            backgroundColor: row.isActive ? "#06A84D" : "#E3B80C",
           }}
         >
           {row.isActive ? "Active" : "Inactive"}
