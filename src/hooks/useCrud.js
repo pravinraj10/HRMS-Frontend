@@ -170,8 +170,10 @@ export const useCrud = () => {
         await api.delete(`/City/${item.id}`);
       }
       await fetchAll();
+      return { success: true };
     } catch (err) {
       console.error("Delete error:", err);
+      return { success: false };
     }
   };
 

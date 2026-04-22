@@ -1,30 +1,152 @@
 {
   "employees": [
     {
+      "id": "EMP1234",
+      "name": "saas",
+      "department": "Finance",
+      "designation": "Representative",
+      "email": "rasick908@gmail.com",
+      "phone": "7894561236",
+      "status": "Active",
+      "gender": "Female",
+      "dob": "2001-10-21",
+      "joiningDate": "2010-10-21",
+      "manager": "Alice Smith",
+      "shift": "Morning",
+      "address": "cadsscsadd",
+      "emergencyContact": "9600220202",
+      "profilePhoto": "cargo4.jfif",
+      "idProofs": [
+        {
+          "AA": "BE Assess Copy 3558887 dt 19052024.pdf"
+        },
+        {
+          "BB": "AWB Import 4.pdf"
+        }
+      ]
+    },
+    {
       "id": "EMP_12547",
-      "name": "Rasick 2001",
+      "name": "kdcsd",
       "department": "Sales",
       "designation": "Manager",
       "email": "rasick908@gmail.com",
-      "phone": "9876543211",
+      "phone": "7894561236",
       "status": "Active",
       "gender": "Male",
-      "dob": "2000-02-21",
-      "joiningDate": "5554-05-04",
+      "dob": "2020-10-21",
+      "joiningDate": "2010-10-21",
       "manager": "Alice Smith",
-      "shift": "Evening",
-      "address": "address",
-      "emergencyContact": "8855555555",
-      "profilePhoto": "cargo4.jfif",
+      "shift": "Morning",
+      "address": "am;ladm;ca",
+      "emergencyContact": "7894561230",
+      "profilePhoto": "cargo6.jfif",
       "idProofs": [
         {
           "Aadhar": "AWB Import 4.pdf"
         },
         {
-          "Pan Card": "PO 1 1.pdf"
+          "PAN": "BE Assess Copy 3558887 dt 19052024.pdf"
+        }
+      ]
+    },
+    {
+      "id": "EMP_12547",
+      "name": "kdcsd",
+      "department": "Sales",
+      "designation": "Manager",
+      "email": "rasick908@gmail.com",
+      "phone": "7894561236",
+      "status": "Active",
+      "gender": "Male",
+      "dob": "2020-10-21",
+      "joiningDate": "2010-10-21",
+      "manager": "Alice Smith",
+      "shift": "Morning",
+      "address": "am;ladm;ca",
+      "emergencyContact": "7894561230",
+      "profilePhoto": "cargo6.jfif",
+      "idProofs": [
+        {
+          "Aadhar": "AWB Import 4.pdf"
         },
         {
-          "Resume": "EX 464 INV.pdf"
+          "PAN": "BE Assess Copy 3558887 dt 19052024.pdf"
+        }
+      ]
+    },
+    {
+      "id": "EMP_12547",
+      "name": "kdcsd",
+      "department": "Sales",
+      "designation": "Manager",
+      "email": "rasick908@gmail.com",
+      "phone": "7894561236",
+      "status": "Active",
+      "gender": "Male",
+      "dob": "2020-10-21",
+      "joiningDate": "2010-10-21",
+      "manager": "Alice Smith",
+      "shift": "Morning",
+      "address": "am;ladm;ca",
+      "emergencyContact": "7894561230",
+      "profilePhoto": "cargo6.jfif",
+      "idProofs": [
+        {
+          "Aadhar": "AWB Import 4.pdf"
+        },
+        {
+          "PAN": "BE Assess Copy 3558887 dt 19052024.pdf"
+        }
+      ]
+    },
+    {
+      "id": "EMP_12547",
+      "name": "kdcsd",
+      "department": "Sales",
+      "designation": "Manager",
+      "email": "rasick908@gmail.com",
+      "phone": "7894561236",
+      "status": "Active",
+      "gender": "Male",
+      "dob": "2020-10-21",
+      "joiningDate": "2010-10-21",
+      "manager": "Alice Smith",
+      "shift": "Morning",
+      "address": "am;ladm;ca",
+      "emergencyContact": "7894561230",
+      "profilePhoto": "cargo6.jfif",
+      "idProofs": [
+        {
+          "Aadhar": "AWB Import 4.pdf"
+        },
+        {
+          "PAN": "BE Assess Copy 3558887 dt 19052024.pdf"
+        }
+      ]
+    },
+    {
+      "id": "EMP1234h",
+      "name": "aaa",
+      "department": "HR",
+      "designation": "Manager",
+      "email": "rasick908@gmail.com",
+      "phone": "7894561236",
+      "status": "Inactive",
+      "gender": "Female",
+      "dob": "2002-02-21",
+      "joiningDate": "2021-10-21",
+      "manager": "Alice Smith",
+      "shift": "Morning",
+      "address": "jxisih",
+      "emergencyContact": "0123456789",
+      "profilePhoto": "cargo3.jfif",
+      "idProofs": [
+        {
+          "Aadhar": "AWB Import 4.pdf"
+        },
+        {
+          "Panana": "Eway-bill.pdf"
         }
       ]
     }

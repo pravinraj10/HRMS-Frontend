@@ -127,7 +127,12 @@ const General = () => {
 
   const handleConfirmDelete = async () => {
     if (!deleteItem) return;
-    await remove(endpointMap[activeTab], deleteItem);
+    const res = await remove(endpointMap[activeTab], deleteItem);
+    if (res.success) {
+      showPopup("Success!", `${currentConfig.label} deleted successfully!`);
+    } else {
+      showPopup("Error!", `Failed to delete ${currentConfig.label}.`, "error");
+    }
     setIsConfirmOpen(false);
     setDeleteItem(null);
   };
@@ -502,6 +507,15 @@ const General = () => {
                 />
               </div>
             ))}
+            <button
+              className="btn-filter-action btn-clear-emp"
+              onClick={() => {
+                setSearchTerm("");
+                setFilterValues({});
+              }}
+            >
+              Clear
+            </button>
           </div>
 
           <div className="search-container">

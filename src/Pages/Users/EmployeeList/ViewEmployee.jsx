@@ -11,14 +11,25 @@ const ViewEmployee = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("Personal Info");
-  const { getById } = useCrudEmployee();
+  const { getById, loading } = useCrudEmployee();
   
   const employee = getById(id);
 
+  if (loading) {
+    return (
+      <div className="view-employee-wrapper d-flex flex-column justify-content-center align-items-center" style={{ height: "70vh" }}>
+        <div className="spinner-border text-primary mb-3" role="status"></div>
+        <p className="text-muted fw-medium">Fetching employee details...</p>
+      </div>
+    );
+  }
+
   if (!employee) {
     return (
-      <div className="view-employee-wrapper d-flex justify-content-center align-items-center" style={{ height: "70vh" }}>
-        <p className="text-muted fw-medium">Loading employee details...</p>
+      <div className="view-employee-wrapper d-flex flex-column justify-content-center align-items-center" style={{ height: "70vh" }}>
+        <h3 className="text-danger mb-2">Employee Not Found</h3>
+        <p className="text-muted mb-4">We couldn't find any record for ID: {id}</p>
+        <button className="btn-action-blue" onClick={() => navigate('/employee/list')}>Back to List</button>
       </div>
     );
   }
@@ -44,13 +55,13 @@ const ViewEmployee = () => {
         {/* Top Profile Card */}
         <div className="profile-hero-card mb-4 d-flex align-items-center gap-4">
           <img 
-            src={employee.profilePhoto ? (employee.profilePhoto.startsWith('http') ? employee.profilePhoto : `http://localhost:4000/${employee.profilePhoto}`) : profileImg} 
+            src={employee.profilePhoto ? (employee.profilePhoto.startsWith('http') ? employee.profilePhoto : `https://localhost:5000${employee.profilePhoto}`) : profileImg} 
             onError={(e) => { e.target.onerror = null; e.target.src = profileImg; }}
             alt="Profile" 
             className="hero-avatar" 
           />
           <div className="hero-info">
-            <h3 className="hero-name">{employee.name} {employee.id ? `(${employee.id})` : ''}</h3>
+            <h3 className="hero-name">{employee.name} {employee.employeeId ? `(${employee.employeeId})` : ''}</h3>
             <p className="hero-designation text-muted mb-2">{employee.designation}, {employee.department}</p>
             <p className="hero-subtext text-muted mb-0">
               Joined on: {employee.joiningDate || "N/A"} &nbsp;|&nbsp; {employee.email} &nbsp;|&nbsp; {employee.phone}
@@ -91,7 +102,7 @@ const ViewEmployee = () => {
                       <div className="col-md-6">
                         <div className="info-block">
                           <label>Employee ID</label>
-                          <p>{employee.id || "-"}</p>
+                          <p>{employee.employeeId || "-"}</p>
                         </div>
                       </div>
                     </div>

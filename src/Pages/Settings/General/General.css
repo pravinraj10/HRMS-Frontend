@@ -5,7 +5,7 @@ body {
 }
 
 
-.text-custom-blue {
+.rt-table td.text-custom-blue {
   color: #4f7094 !important;
 }
 
@@ -42,11 +42,11 @@ body {
 }
 
 .status-badge-active {
-  background-color: #22c55e !important;
+  background-color: #06A84D !important;
 }
 
 .status-badge-inactive {
-  background-color: #ef4444 !important;
+  background-color: #E3B80C !important;
 }
 
 .ios-toggle {
@@ -136,6 +136,35 @@ body {
   width: 300px;
 }
 
+.btn-filter-action {
+  border: none;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-clear-emp {
+  background-color: white;
+  color: #3b82f6;
+  border: 1px solid #3b82f6;
+}
+
+.btn-clear-emp:hover {
+  background-color: #eff6ff;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
 .general-title {
   font-size: 24px !important;
   font-weight: 700 !important;
@@ -213,6 +242,39 @@ body {
   .add-btn {
     font-size: 12px !important;
     padding: 8px 12px !important;
+  }
+
+  /* Responsive Adjustments like EmployeeList */
+  .general-card,
+  .general-card table td,
+  .general-card table th,
+  .btn-filter-action {
+    font-size: 13px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Even smaller text */
+  .general-card,
+  .general-card table td,
+  .general-card table th,
+  .status-badge-style,
+  .btn-filter-action {
+    font-size: 12px !important;
+  }
+
+  .status-badge-style {
+    padding: 4px 12px;
+    min-width: 70px;
+  }
+
+  .btn-filter-action {
+    width: 100%;
+  }
+
+  .ml-2 {
+    margin-left: 0;
+    margin-top: 8px;
   }
 }
 
