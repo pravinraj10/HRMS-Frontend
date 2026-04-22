@@ -61,7 +61,7 @@ const ViewEmployee = () => {
             className="hero-avatar" 
           />
           <div className="hero-info">
-            <h3 className="hero-name">{employee.name} {employee.id ? `(${employee.id})` : ''}</h3>
+            <h3 className="hero-name">{employee.name} {employee.employeeId ? `(${employee.employeeId})` : ''}</h3>
             <p className="hero-designation text-muted mb-2">{employee.designation}, {employee.department}</p>
             <p className="hero-subtext text-muted mb-0">
               Joined on: {employee.joiningDate || "N/A"} &nbsp;|&nbsp; {employee.email} &nbsp;|&nbsp; {employee.phone}
@@ -102,7 +102,7 @@ const ViewEmployee = () => {
                       <div className="col-md-6">
                         <div className="info-block">
                           <label>Employee ID</label>
-                          <p>{employee.id || "-"}</p>
+                          <p>{employee.employeeId || "-"}</p>
                         </div>
                       </div>
                     </div>

@@ -246,7 +246,6 @@ const EmployeeList = () => {
               onClick={() => {
                 setFilters({ department: "", role: "", status: "" });
                 setSearchTerm("");
-                searchEmployee("");
               }}
             >
               Clear

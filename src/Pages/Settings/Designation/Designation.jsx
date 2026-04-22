@@ -245,13 +245,13 @@ const Designation = () => {
     <div className="designation-page">
       <div className="designation-header">
         <div className="header-left">
-          <h2 className="page-title">Designations</h2>
-          <div className="breadcrumbs">
-            <FiHome size={14} /> / Settings / <span className="current-page">Designation</span>
+          <h2 className="general-title mb-0">Designations</h2>
+          <div className="d-flex align-items-center gap-2 breadcrumb-container">
+            <FiHome size={14} /> / Settings / <span className="fw-medium text-dark">Designation</span>
           </div>
         </div>
         <button
-          className="add-btn"
+          className="btn text-white d-flex align-items-center gap-2 border-0 shadow-sm add-btn add-btn-custom"
           onClick={() => {
             reset();
             setEditingItem(null);
@@ -288,6 +288,17 @@ const Designation = () => {
               onChange={(val) => setStatusFilter(val)}
             />
           </div>
+          <button
+            className="btn-filter-action btn-clear-emp"
+            onClick={() => {
+              setSearchTerm("");
+              setStatusFilter("");
+              setDesignationFilter("");
+              setDepartmentFilter("");
+            }}
+          >
+            Clear
+          </button>
           <div className="search-item">
             <ReusableSearch
               placeholder="Search by designation name"
@@ -297,11 +308,17 @@ const Designation = () => {
           </div>
         </div>
 
-        <ReusableTable
-          columns={columns}
-          data={loading ? [] : filteredData}
-          isFetching={loading}
-        />
+        {filteredData.length > 0 || loading ? (
+          <ReusableTable
+            columns={columns}
+            data={loading ? [] : filteredData}
+            isFetching={loading}
+          />
+        ) : (
+          <div className="text-center py-5 rounded-3 bg-light text-muted">
+            No records found
+          </div>
+        )}
       </div>
 
       {/* Add/Edit Modal */}

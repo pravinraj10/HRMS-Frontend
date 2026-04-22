@@ -507,6 +507,15 @@ const General = () => {
                 />
               </div>
             ))}
+            <button
+              className="btn-filter-action btn-clear-emp"
+              onClick={() => {
+                setSearchTerm("");
+                setFilterValues({});
+              }}
+            >
+              Clear
+            </button>
           </div>
 
           <div className="search-container">

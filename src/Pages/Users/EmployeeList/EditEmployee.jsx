@@ -122,7 +122,7 @@ const EditEmployee = () => {
         designation: employee.designation || "",
         manager: employee.manager || "",
         joiningDate: employee.joiningDate || "",
-        employeeId: employee.id || "",
+        employeeId: employee.employeeId || "",
         shift: employee.shift || "",
         officeEmail: employee.email || "", // Fallback to personal email if not distinguished
         emergencyContact: employee.emergencyContact || "",
@@ -136,7 +136,7 @@ const EditEmployee = () => {
     setLoading(true);
     
     const payload = {
-      ...employeeData, // Start with all current data to preserve unedited fields like profilePhoto, idProofs, contract
+      ...employeeData, 
       name: data.fullName,
       gender: data.gender,
       dob: data.dob,
@@ -147,6 +147,7 @@ const EditEmployee = () => {
       manager: data.manager,
       joiningDate: data.joiningDate,
       shift: data.shift,
+      employeeCode: data.employeeId,
       emergencyContact: data.emergencyContact,
       address: data.address,
       status: employeeData?.status || "Active"
@@ -204,10 +205,10 @@ const EditEmployee = () => {
            <div className="profile-avatar">
              <img src={employeeData?.profilePhoto ? (employeeData.profilePhoto.startsWith('http') ? employeeData.profilePhoto : `https://localhost:5000${employeeData.profilePhoto}`) : profileImg} alt="Profile" />
            </div>
-           <div>
-             <h4 className="profile-name mb-0">{employeeData?.name || "Loading..."}</h4>
-             <span className="profile-emp-id">EMP ID: {employeeData?.id || "EMP_..."}</span>
-           </div>
+            <div>
+              <h4 className="profile-name mb-0">{employeeData?.name || "Loading..."}</h4>
+              <span className="profile-emp-id">EMP ID: {employeeData?.employeeId || "..."}</span>
+            </div>
         </div>
 
         {/* Form Body directly scrollable */}
@@ -365,14 +366,8 @@ const EditEmployee = () => {
                       fullWidth size="small" placeholder="Enter employee ID"
                       {...register("employeeId", { required: "Employee ID is required" })}
                       error={!!errors.employeeId} helperText={errors.employeeId?.message}
-                      disabled={true} 
-                      sx={{
-                        ...getTextFieldStyle(true),
-                        "& .MuiOutlinedInput-root": {
-                          ...getTextFieldStyle(true)["& .MuiOutlinedInput-root"],
-                          backgroundColor: "#F7F7F7 !important"
-                        }
-                      }}
+                      disabled={!editJobDetails} 
+                      sx={getTextFieldStyle(!editJobDetails)}
                     />
                   </div>
                   <div className="col-md-6">

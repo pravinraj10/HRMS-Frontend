@@ -12,9 +12,7 @@ export const useCrudEmployee = () => {
     setLoading(true);
     try {
       const response = await api.get(API_ENDPOINT);
-      // Simulate real-world fetch delay to display initial skeletal loading like General.jsx
       await new Promise(resolve => setTimeout(resolve, 800));
-      // Map backend DTO to frontend expected properties
       const mappedData = response.data.map(emp => ({
         id: emp.id,
         employeeId: emp.employeeCode || "",

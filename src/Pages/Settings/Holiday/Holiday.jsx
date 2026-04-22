@@ -187,13 +187,13 @@ const Holiday = () => {
     <div className="holiday-page">
       <div className="holiday-header">
         <div className="header-left">
-          <h2 className="page-title">Holiday</h2>
-          <div className="breadcrumbs">
-            <FiHome size={14} /> / Settings / <span className="current-page">Holidays</span>
+          <h2 className="general-title mb-0">Holidays</h2>
+          <div className="d-flex align-items-center gap-2 breadcrumb-container">
+            <FiHome size={14} /> / Settings / <span className="fw-medium text-dark">Holidays</span>
           </div>
         </div>
         <button
-          className="add-btn"
+          className="btn text-white d-flex align-items-center gap-2 border-0 shadow-sm add-btn add-btn-custom"
           onClick={() => {
             reset();
             setEditingItem(null);
@@ -205,19 +205,35 @@ const Holiday = () => {
       </div>
 
       <div className="holiday-content card">
-        <div className="search-bar-container mb-3">
-          <ReusableSearch
-            placeholder="Search Holiday..."
-            value={searchTerm}
-            onChange={setSearchTerm}
-          />
+        <div className="filter-controls-row">
+          <div className="filter-group-left">
+            <button
+              className="btn-filter-action btn-clear-emp"
+              onClick={() => setSearchTerm("")}
+            >
+              Clear
+            </button>
+          </div>
+          <div className="search-bar-container">
+            <ReusableSearch
+              placeholder="Search Holiday..."
+              value={searchTerm}
+              onChange={setSearchTerm}
+            />
+          </div>
         </div>
 
-        <ReusableTable
-          columns={columns}
-          data={loading ? [] : filteredData}
-          isFetching={loading}
-        />
+        {filteredData.length > 0 || loading ? (
+          <ReusableTable
+            columns={columns}
+            data={loading ? [] : filteredData}
+            isFetching={loading}
+          />
+        ) : (
+          <div className="text-center py-5 rounded-3 bg-light text-muted">
+            No records found
+          </div>
+        )}
       </div>
 
       {/* Add/Edit Modal */}

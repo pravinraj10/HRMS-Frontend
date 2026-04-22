@@ -16,6 +16,7 @@ const Department = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [departmentNameFilter, setDepartmentNameFilter] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -139,9 +140,13 @@ const Department = () => {
         (statusFilter === "Active" && item.isActive) || 
         (statusFilter === "Inactive" && !item.isActive);
 
-      return matchesStatus;
+      const matchesDepartment = 
+        departmentNameFilter === "" || 
+        item.departmentName === departmentNameFilter;
+
+      return matchesStatus && matchesDepartment;
     });
-  }, [departments, statusFilter]);
+  }, [departments, statusFilter, departmentNameFilter]);
 
   const columns = [
     { key: "departmentName", label: "Department Name" },
@@ -195,13 +200,13 @@ const Department = () => {
     <div className="department-page">
       <div className="department-header">
         <div className="header-left">
-          <h2 className="page-title">Departments</h2>
-          <div className="breadcrumbs">
-            <FiHome size={14} /> / Settings / <span className="current-page">Department</span>
+          <h2 className="general-title mb-0">Departments</h2>
+          <div className="d-flex align-items-center gap-2 breadcrumb-container">
+            <FiHome size={14} /> / Settings / <span className="fw-medium text-dark">Department</span>
           </div>
         </div>
         <button
-          className="add-btn"
+          className="btn text-white d-flex align-items-center gap-2 border-0 shadow-sm add-btn add-btn-custom"
           onClick={() => {
             reset();
             setEditingItem(null);
@@ -218,8 +223,8 @@ const Department = () => {
             <ReusableDropdown
               placeholder="All Department"
               options={departments.filter(d => d.isActive).map(d => ({ label: d.departmentName, value: d.departmentName }))}
-              value={searchTerm}
-              onChange={(val) => setSearchTerm(val)}
+              value={departmentNameFilter}
+              onChange={(val) => setDepartmentNameFilter(val)}
             />
           </div>
           <div className="filter-item">
@@ -238,6 +243,16 @@ const Department = () => {
               onChange={(val) => setStatusFilter(val)}
             />
           </div>
+          <button
+            className="btn-filter-action btn-clear-emp"
+            onClick={() => {
+              setSearchTerm("");
+              setStatusFilter("");
+              setDepartmentNameFilter("");
+            }}
+          >
+            Clear
+          </button>
           <div className="search-item">
             <ReusableSearch
               placeholder="Search by department name"
@@ -247,11 +262,17 @@ const Department = () => {
           </div>
         </div>
 
-        <ReusableTable
-          columns={columns}
-          data={loading ? [] : filteredData}
-          isFetching={loading}
-        />
+        {filteredData.length > 0 || loading ? (
+          <ReusableTable
+            columns={columns}
+            data={loading ? [] : filteredData}
+            isFetching={loading}
+          />
+        ) : (
+          <div className="text-center py-5 rounded-3 bg-light text-muted">
+            No records found
+          </div>
+        )}
       </div>
 
       {/* Add/Edit Modal */}
