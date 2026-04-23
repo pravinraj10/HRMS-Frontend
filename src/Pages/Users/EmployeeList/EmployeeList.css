@@ -233,47 +233,58 @@
 
 /* Status Badge */
 .emp-status-badge {
-  padding: 6px 16px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
+  padding: 8px 22px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 90px;
-  color: white;
+  min-width: 100px;
+  color: white !important;
+  letter-spacing: 0.3px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.emp-status-badge::before {
+  display: none;
 }
 
 .emp-status-active {
-  background-color: #06A84D !important;
+  background-color: #22C55E !important; /* Same green as in the image */
 }
 
 .emp-status-inactive {
-  background-color: #E3B80C !important;
+  background-color: #EAB308 !important;
+  color: white !important;
 }
 
 /* Action Icons */
 .emp-action-icon {
-  font-size: 18px;
+  font-size: 20px;
   cursor: pointer;
   transition: transform 0.2s ease, opacity 0.2s;
 }
 
 .emp-action-icon:hover {
-  transform: scale(1.1);
+  transform: scale(1.15);
+  opacity: 0.85;
 }
 
+/* Icon Colors — exact match to the reference image */
 .icon-view-blue {
-  color: #136DEC !important;
+  color: #1D6EF5 !important; /* Bright Blue */
 }
 
 .icon-edit-green {
-  color: #08A94F !important;
+  color: #F59E0B !important; /* Amber/Orange pencil */
 }
 
 .icon-delete-red {
-  color: #E70D0D !important;
+  color: #EF4444 !important; /* Clear Red for trash */
 }
+
 
 /* Responsive Styles */
 @media screen and (max-width: 1200px) {
@@ -374,6 +385,8 @@
   width: 44px;
   height: 24px;
   flex-shrink: 0;
+  margin: 0 !important;
+  cursor: pointer;
 }
 
 .ios-toggle input {
@@ -384,31 +397,30 @@
 
 .ios-slider {
   position: absolute;
-  cursor: pointer;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #9ca3af;
-  transition: 0.4s;
-  border-radius: 24px;
+  background-color: #cbd5e1;
+  transition: all 0.3s ease;
+  border-radius: 30px;
 }
 
 .ios-slider:before {
   position: absolute;
   content: "";
-  height: 20px;
-  width: 20px;
-  left: 2px;
-  bottom: 2px;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
   background-color: white;
-  transition: 0.4s;
+  transition: all 0.3s ease;
   border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .ios-toggle input:checked + .ios-slider {
-  background-color: #34c759;
+  background-color: #22C55E;
 }
 
 .ios-toggle input:checked + .ios-slider:before {
