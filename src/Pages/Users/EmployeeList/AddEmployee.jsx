@@ -93,7 +93,11 @@ const AddEmployee = () => {
     formData.append("DesignationId", data.designation);
     if (data.joiningDate) formData.append("JoiningDate", data.joiningDate);
     formData.append("EmployeeCode", data.employeeId || "");
-    formData.append("ReportingManagerId", "1");
+    
+    // Find the selected manager's actual ID from the employees list
+    const selectedManager = employees.find(emp => emp.name === data.manager);
+    formData.append("ReportingManagerId", selectedManager ? selectedManager.id : "");
+    
     formData.append("Shift", data.shift || "");
     
     if (profilePhotoFiles && profilePhotoFiles.length > 0) {
@@ -391,7 +395,7 @@ const AddEmployee = () => {
                           }}
                         >
                           <MenuItem disabled value=""><em style={{ fontStyle: 'normal', color: '#9ca3af' }}>Select manager</em></MenuItem>
-                          {["Alice Smith", "Mark Johnson", "Sarah Connor", "John Doe"].map(opt => <MenuItem key={opt} value={opt} sx={{ fontSize: { xs: "13px", md: "14px" } }}>{opt}</MenuItem>)}
+                          {employees.map(emp => <MenuItem key={emp.id} value={emp.name} sx={{ fontSize: { xs: "13px", md: "14px" } }}>{emp.name}</MenuItem>)}
                         </TextField>
                       )}
                     />

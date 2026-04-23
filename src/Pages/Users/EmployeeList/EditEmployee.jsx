@@ -18,7 +18,7 @@ import "./EditEmployee.css";
 const EditEmployee = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { employees, update, getById } = useCrudEmployee();
+const {  update, fetchById } = useCrudEmployee();
   
   const { register, handleSubmit, control, formState: { errors }, reset } = useForm();
   const [loading, setLoading] = useState(false);
@@ -63,14 +63,20 @@ const EditEmployee = () => {
         const newData = { ...prev };
         if (updatingDoc.type === 'newIdProof') {
           const newIdProofs = [...(newData.idProofs || [])];
-          newIdProofs.push({ [documentName.trim()]: file.name });
+          newIdProofs.push({
+          name: documentName.trim(),
+          file: file
+          });
           newData.idProofs = newIdProofs;
           setDocumentName(""); // Clear after adding
         } else if (updatingDoc.type === 'idProof' && updatingDoc.index !== null) {
           const newIdProofs = [...(newData.idProofs || [])];
           const oldObj = newIdProofs[updatingDoc.index];
           const oldKey = Object.keys(oldObj)[0];
-          newIdProofs[updatingDoc.index] = { [oldKey]: file.name };
+          newIdProofs[updatingDoc.index] = {
+           name: oldKey,
+           file: file
+           };
           newData.idProofs = newIdProofs;
         }
         return newData;
@@ -106,31 +112,40 @@ const EditEmployee = () => {
   }, []);
 
   // Load employee data into form
-  useEffect(() => {
-    if (!id || employees.length === 0 || isDataLoaded) return;
-    
-    const employee = getById(id);
-    if (employee) {
+ useEffect(() => {
+ const loadEmployee = async () => {
+   if (!id || isDataLoaded) return;
+
+   const employee = await fetchById(id);
+
+   if(employee){
       setEmployeeData(employee);
+
       reset({
         fullName: employee.name || "",
         gender: employee.gender || "",
         dob: employee.dob || "",
         email: employee.email || "",
         phone: employee.phone || "",
-        department: employee.department || "",
-        designation: employee.designation || "",
-        manager: employee.manager || "",
-        joiningDate: employee.joiningDate || "",
-        employeeId: employee.employeeId || "",
-        shift: employee.shift || "",
-        officeEmail: employee.email || "", // Fallback to personal email if not distinguished
         emergencyContact: employee.emergencyContact || "",
         address: employee.address || "",
+
+        department: employee.department || "",
+        designation: employee.designation || "",
+
+        manager: employee.reportingManagerId || "",
+
+        joiningDate: employee.joiningDate || "",
+        employeeId: employee.employeeId || "",
+        shift: employee.shift || ""
       });
+
       setIsDataLoaded(true);
-    }
-  }, [id, employees, getById, reset, isDataLoaded]);
+   }
+ };
+
+ loadEmployee();
+}, [id, fetchById, reset, isDataLoaded]);
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -203,7 +218,14 @@ const EditEmployee = () => {
         {/* Profile Bar - Fixed at top below header */}
         <div className="profile-bar-card mb-4 d-flex align-items-center gap-3">
            <div className="profile-avatar">
-             <img src={employeeData?.profilePhoto ? (employeeData.profilePhoto.startsWith('http') ? employeeData.profilePhoto : `https://localhost:5000${employeeData.profilePhoto}`) : profileImg} alt="Profile" />
+             <img 
+         src={employeeData?.profilePhoto 
+         ? (employeeData.profilePhoto.startsWith('http') 
+          ? employeeData.profilePhoto 
+          : `https://localhost:44306${employeeData.profilePhoto}`)
+         : profileImg} 
+         alt="Profile" 
+         />
            </div>
             <div>
               <h4 className="profile-name mb-0">{employeeData?.name || "Loading..."}</h4>
@@ -460,8 +482,9 @@ const EditEmployee = () => {
                   </div>
 
                   {employeeData?.idProofs?.map((docObj, idx) => {
-                    const docKey = Object.keys(docObj)[0];
-                    const docFile = docObj[docKey];
+                     const docKey = docObj.name;
+                     const docFile =
+                     docObj.file?.name || docObj.file || "";
                     return (
                       <div key={`idproof-${idx}`} className="document-list-item d-flex align-items-center justify-content-between p-3 border rounded shadow-sm bg-white">
                          <div className="d-flex align-items-center gap-3">

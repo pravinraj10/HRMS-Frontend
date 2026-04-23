@@ -20,7 +20,7 @@ const statusOptions = [
 
 const EmployeeList = () => {
   const navigate = useNavigate();
-  const { employees, loading, searchLoading, remove, update, search } = useCrudEmployee();
+  const { employees, loading, searchLoading, remove, toggleStatus, search } = useCrudEmployee();
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     department: "",
@@ -102,10 +102,11 @@ const EmployeeList = () => {
   };
 
   const handleToggleStatus = async (row) => {
-    const newStatus = row.status === "Active" ? "Inactive" : "Active";
-    const payload = { ...row, status: newStatus };
-    const res = await update(row.id, payload);
+    // Clear status filter so the row stays visible after its status changes
+    setFilters((prev) => ({ ...prev, status: "" }));
+    const res = await toggleStatus(row.id, row.status);
     if (res.success) {
+      const newStatus = row.status === "Active" ? "Inactive" : "Active";
       showPopup("Success!", `Employee status updated to ${newStatus} successfully!`);
     } else {
       showPopup("Error!", "Failed to update employee status.", "error");
@@ -148,7 +149,7 @@ const EmployeeList = () => {
             title="Delete" 
             onClick={() => handleDelete(row)}
           />
-          <label className="ios-toggle" title="Toggle Status" style={{marginLeft: "8px"}}>
+          <label className="ios-toggle" title="Toggle Status">
             <input
               type="checkbox"
               checked={row.status === "Active"}
