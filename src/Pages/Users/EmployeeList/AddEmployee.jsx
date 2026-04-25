@@ -12,7 +12,6 @@ import "./AddEmployee.css";
 
 const AddEmployee = () => {
   const navigate = useNavigate();
-  const { create } = useCrudEmployee();
   const { register, handleSubmit, control, formState: { errors }, reset, watch, setValue } = useForm();
   const [loading, setLoading] = useState(false);
   const [idProofsList, setIdProofsList] = useState([]);
@@ -26,8 +25,31 @@ const AddEmployee = () => {
   
   const [departments, setDepartments] = useState([]);
   const [designations, setDesignations] = useState([]);
-  const { employees, searchEmployees } = useCrudEmployee();
-  const [search, setSearch] = useState("");
+  const [managerOptions, setManagerOptions] = useState([]);
+  const { create } = useCrudEmployee();
+ useEffect(() => {
+  const fetchRoles = async () => {
+    try {
+      const res = await api.get("/Employee/dropdown");
+
+      const rolesData = Array.isArray(res.data)
+        ? res.data
+        : res.data?.$values || [];
+
+      const activeRoles = rolesData.map(role => ({
+        id: role.id,
+        label: role.roleName
+      }));
+
+      setManagerOptions(activeRoles);
+
+    } catch (error) {
+      console.error("Role fetch error:", error);
+    }
+  };
+
+  fetchRoles();
+}, []);
   useEffect(() => {
     const fetchDropdownData = async () => {
       try {
@@ -79,46 +101,44 @@ const AddEmployee = () => {
 
   const onSubmit = async (data) => {
     setLoading(true);
-    
-    const formData = new FormData();
-    formData.append("FullName", data.fullName || "");
-    formData.append("Gender", data.gender || "");
-    if (data.dob) formData.append("DateOfBirth", data.dob);
-    formData.append("PersonalEmail", data.email || "");
-    formData.append("PersonalPhone", data.phone || "");
-    formData.append("EmergencyContact", data.emergencyContact || "");
-    formData.append("Address", data.address || "");
-    
-    formData.append("DepartmentId", data.department); 
-    formData.append("DesignationId", data.designation);
-    if (data.joiningDate) formData.append("JoiningDate", data.joiningDate);
-    formData.append("EmployeeCode", data.employeeId || "");
-    
-    // Find the selected manager's actual ID from the employees list
-    const selectedManager = employees.find(emp => emp.name === data.manager);
-    formData.append("ReportingManagerId", selectedManager ? selectedManager.id : "");
-    
-    formData.append("Shift", data.shift || "");
-    
-    if (profilePhotoFiles && profilePhotoFiles.length > 0) {
-      formData.append("ProfilePhoto", profilePhotoFiles[0]);
-    }
-    
-    // Appending CreatedBy
-    formData.append("CreatedBy", "admin"); // You can replace "admin" with the actual logged-in user's name/ID
+    try {
+      const formData = new FormData();
+      formData.append("FullName", data.fullName || "");
+      formData.append("Gender", data.gender || "");
+      if (data.dob) formData.append("DateOfBirth", data.dob);
+      formData.append("PersonalEmail", data.email || "");
+      formData.append("PersonalPhone", data.phone || "");
+      formData.append("EmergencyContact", data.emergencyContact || "");
+      formData.append("Address", data.address || "");
 
-    // Appending the first ID proof
-    if (idProofsList.length > 0) {
-      formData.append("IdProof", idProofsList[0].file);
-    }
+      formData.append("DepartmentId", String(data.department || ""));
+      formData.append("DesignationId", String(data.designation || ""));
+      if (data.joiningDate) formData.append("JoiningDate", data.joiningDate);
+      formData.append("EmployeeCode", data.employeeId || "");
+      formData.append("ReportingManagerId", String(data.manager || ""));
+      formData.append("Shift", data.shift || "");
 
-    const res = await create(formData);
-    setLoading(false);
-    
-    if (res.success) {
-      showPopup("Success!", "Employee saved successfully!");
-    } else {
+      if (profilePhotoFiles && profilePhotoFiles.length > 0) {
+        formData.append("ProfilePhoto", profilePhotoFiles[0]);
+      }
+
+      formData.append("CreatedBy", "admin");
+
+      if (idProofsList.length > 0) {
+        formData.append("IdProof", idProofsList[0].file);
+      }
+
+      const res = await create(formData);
+
+      if (res.success) {
+        showPopup("Success!", "Employee saved successfully!");
+      } else {
+        showPopup("Error!", res.message || "Failed to save employee.", "error");
+      }
+    } catch (error) {
       showPopup("Error!", "Failed to save employee.", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -183,29 +203,36 @@ const AddEmployee = () => {
                 <div className="col-md-6">
                   <label className="form-label-custom">Gender</label>
                   <Controller
-                      name="gender"
-                      control={control}
-                      rules={{ required: `Gender is required` }}
-                      defaultValue=""
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          select
-                          fullWidth
-                          size="small"
-                          error={!!errors.gender}
-                          helperText={errors.gender?.message}
-                          sx={textFieldStyle}
-                          SelectProps={{
-                            displayEmpty: true,
-                            renderValue: (value) => value ? value : <span style={{ color: '#9ca3af' }}>Select gender</span>
-                          }}
-                        >
-                          <MenuItem disabled value=""><em style={{ fontStyle: 'normal', color: '#9ca3af' }}>Select gender</em></MenuItem>
-                          {["Male", "Female", "Other"].map(opt => <MenuItem key={opt} value={opt} sx={{ fontSize: { xs: "13px", md: "14px" } }}>{opt}</MenuItem>)}
-                        </TextField>
-                      )}
-                    />
+                    name="gender"
+                    control={control}
+                    rules={{ required: "Gender is required" }}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        select
+                        fullWidth
+                        size="small"
+                        error={!!errors.gender}
+                        helperText={errors.gender?.message}
+                        sx={textFieldStyle}
+                        SelectProps={{
+                          displayEmpty: true,
+                          renderValue: (value) =>
+                            value ? value : <span style={{ color: "#9ca3af" }}>Select gender</span>
+                        }}
+                      >
+                        <MenuItem disabled value="">
+                          Select gender
+                        </MenuItem>
+                        {["Male", "Female", "Other"].map((gender) => (
+                          <MenuItem key={gender} value={gender}>
+                            {gender}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    )}
+                  />
                 </div>
                 
                 <div className="col-md-6">
@@ -395,7 +422,11 @@ const AddEmployee = () => {
                           }}
                         >
                           <MenuItem disabled value=""><em style={{ fontStyle: 'normal', color: '#9ca3af' }}>Select manager</em></MenuItem>
-                          {employees.map(emp => <MenuItem key={emp.id} value={emp.name} sx={{ fontSize: { xs: "13px", md: "14px" } }}>{emp.name}</MenuItem>)}
+                          {managerOptions.map((manager) => (
+                            <MenuItem key={manager.id} value={manager.id} sx={{ fontSize: { xs: "13px", md: "14px" } }}>
+                              {manager.label}
+                            </MenuItem>
+                          ))}
                         </TextField>
                       )}
                     />

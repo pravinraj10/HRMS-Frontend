@@ -42,6 +42,7 @@ const {  update, fetchById } = useCrudEmployee();
   
   const [departments, setDepartments] = useState([]);
   const [designations, setDesignations] = useState([]);
+  const [managerOptions, setManagerOptions] = useState([]);
 
   const showPopup = (title, message, type = "success") => {
     setPopupState({ isOpen: true, title, message, type });
@@ -55,7 +56,6 @@ const {  update, fetchById } = useCrudEmployee();
     setUpdatingDoc({ type, index });
     fileInputRef.current && fileInputRef.current.click();
   };
-
   const handleDocUpdate = (e) => {
     const file = e.target.files[0];
     if (file && updatingDoc) {
@@ -90,9 +90,10 @@ const {  update, fetchById } = useCrudEmployee();
   useEffect(() => {
     const fetchDropdownData = async () => {
       try {
-        const [deptRes, desigRes] = await Promise.all([
+        const [deptRes, desigRes, managerRes] = await Promise.all([
           api.get("/Department"),
-          api.get("/Designation")
+          api.get("/Designation"),
+          api.get("/Employee/dropdown")
         ]);
         
         const getArray = (res) => {
@@ -104,6 +105,11 @@ const {  update, fetchById } = useCrudEmployee();
 
         setDepartments(getArray(deptRes.data));
         setDesignations(getArray(desigRes.data));
+        const managers = getArray(managerRes.data).map((role) => ({
+          id: role.id,
+          label: role.roleName,
+        }));
+        setManagerOptions(managers);
       } catch (err) {
         console.error("Failed to fetch dropdown data", err);
       }
@@ -160,6 +166,7 @@ const {  update, fetchById } = useCrudEmployee();
       department: data.department,
       designation: data.designation,
       manager: data.manager,
+      reportingManagerId: data.manager,
       joiningDate: data.joiningDate,
       shift: data.shift,
       employeeCode: data.employeeId,
@@ -364,7 +371,11 @@ const {  update, fetchById } = useCrudEmployee();
                             disabled={!editJobDetails} sx={getTextFieldStyle(!editJobDetails)}
                           >
                             <MenuItem disabled value=""><em>Select manager</em></MenuItem>
-                            {["Alice Smith", "Mark Johnson", "Sarah Connor", "John Doe"].map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                            {managerOptions.map((manager) => (
+                              <MenuItem key={manager.id} value={manager.id}>
+                                {manager.label}
+                              </MenuItem>
+                            ))}
                           </TextField>
                         )}
                       />
