@@ -80,13 +80,24 @@ const mapEmployeeData = (emp) => {
   // CREATE
   const create = useCallback(async (payload) => {
     try {
-      await api.post(API_ENDPOINT, payload);
+      await api.post(API_ENDPOINT, payload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       await fetchEmployees();
 
       return { success: true };
     } catch (err) {
       console.error("Create Error:", err);
-      return { success: false };
+      return {
+        success: false,
+        message:
+          err?.response?.data?.message ||
+          err?.response?.data?.title ||
+          err?.response?.data ||
+          "Failed to save employee.",
+      };
     }
   }, [fetchEmployees]);
 
@@ -194,10 +205,15 @@ const mapEmployeeData = (emp) => {
       );
       return { success: false };
     }
-  }, [fetchEmployees]);
+  }, []);
 
   // SEARCH
   const searchEmployees = useCallback(async (query) => {
+    if (!query) {
+      await fetchEmployees();
+      return;
+    }
+
     setSearchLoading(true);
 
     try {
@@ -216,7 +232,7 @@ const mapEmployeeData = (emp) => {
     } finally {
       setSearchLoading(false);
     }
-  }, []);
+  }, [fetchEmployees]);
 
   // GET SINGLE FROM API
   const fetchById = useCallback(async (id) => {
