@@ -46,6 +46,26 @@
   transition: 0.2s;
 }
 
+.btn-back-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1px solid #E2E8F0;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-back-top:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
 .btn-export-top:hover {
   background: #f8fafc;
   border-color: #cbd5e1;

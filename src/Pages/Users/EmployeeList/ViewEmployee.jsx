@@ -1,5 +1,5 @@
 import React, { useState,useEffect } from "react";
-import { FiHome, FiChevronDown } from "react-icons/fi";
+import { FiHome, FiChevronDown, FiArrowLeft } from "react-icons/fi";
 import { FaFileAlt } from "react-icons/fa";
 import { BiExport } from "react-icons/bi";
 import { useNavigate, useParams } from "react-router-dom";
@@ -95,9 +95,18 @@ useEffect(() => {
             <FiHome size={14} /> / <span>Employee Management</span> / <span className="fw-medium text-dark">Profile Overview</span>
           </div>
         </div>
-        <button type="button" className="btn-export-top">
-          <BiExport size={16} /> Export <FiChevronDown size={14} />
-        </button>
+        <div className="d-flex align-items-center gap-2">
+          <button
+            type="button"
+            className="btn-back-top"
+            onClick={() => navigate(-1)}
+          >
+            <FiArrowLeft size={16} /> Back
+          </button>
+          <button type="button" className="btn-export-top">
+            <BiExport size={16} /> Export <FiChevronDown size={14} />
+          </button>
+        </div>
       </div>
 
       <div className="view-employee-scroll">
