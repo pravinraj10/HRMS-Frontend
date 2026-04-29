@@ -1,87 +1,12 @@
-export const getMenuItems = async () => {
-    const response = [
-        {
-            "id": 1,
-            "label": "Dashboard",
-            "icon": "hi-view-grid",
-            "url": "/dashboard"
-        },
-        {
-            "id": 2,
-            "label": "Employee",
-            "icon": "bi-people",
-            "children": [
-                {
-                    "id": 21,
-                    "label": "Employee List",
-                    "url": "/employee/list"
-                },
-                {
-                    "id": 22,
-                    "label": "Add User",
-                    "url": "/users/add"
-                },{
-                    "id":23,
-                    "label":"Status & History",
-                    "url":"/employee/status"
-                }
-            ]
-        },
-        {
-            "id": 3,
-            "label": "Settings",
-            "icon": "bi-gear",
-            "children": [
-                {
-                    "id":31,
-                    "label":"Roles & Permission",
-                    "url":"/settings/roles"
-                },
-                {
-                    "id": 32,
-                    "label": "Profile",
-                    "url": "/settings/profile"
-                },
-                {
-                    "id": 33,
-                    "label": "Security",
-                    "url": "/settings/security"
-                },
-                {
-                    "id": 34,
-                    "label": "General",
-                    "url": "/settings/general"
-                },
-                {
-                    "id": 35,
-                    "label": "Holidays",
-                    "url": "/settings/holidays"
-                },
-                {
-                    "id": 36,
-                    "label": "Department",
-                    "url": "/settings/department"
-                },
-                {
-                    "id": 37,
-                    "label": "Designation",
-                    "url": "/settings/designation"
-                }
-            ]
-        },
-        {
-            "id": 4,
-            "label": "Configration",
-            "icon": "bi-gear",
-            "children": [
-                {
-                    "id":41,
-                    "label":"Business",
-                    "url":"/configuration/business"
-                },
-            ]
-        }
-    ]
+import api from "../../api/api";
 
-    return response;
+export const getMenuItems = async () => {
+    try {
+        const response = await api.get("/Menu");
+        const data = response.data?.$values || response.data || [];
+        return data;
+    } catch (error) {
+        console.error("Error fetching menu items:", error);
+        return [];
+    }
 };
