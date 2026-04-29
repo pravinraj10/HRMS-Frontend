@@ -19,6 +19,7 @@ const Sidebar = () => {
       const response = await getMenuItems();
       setMenuItems(response);
     };
+
     fetchMenu();
   }, []);
 
@@ -40,17 +41,21 @@ const Sidebar = () => {
       {menuItems.map((item, index) => {
         const Icon = sidebarIconMap[item.icon];
 
-        const hasActiveChild = item.children?.some(
-          (c) => c.url === location.pathname
-        );
+        // Treat empty children array as no children
+        const hasChildren =
+          Array.isArray(item.children) && item.children.length > 0;
+
+        const hasActiveChild = hasChildren
+          ? item.children.some((c) => c.url === location.pathname)
+          : false;
 
         const isParentActive =
-          (!item.children && location.pathname === item.url) ||
-          hasActiveChild;
+          (!hasChildren && location.pathname === item.url) || hasActiveChild;
 
         return (
           <div key={item.id} className="sidebar-group mb-1">
-            {!item.children && (
+            {/* Regular Menu Item (no children OR empty children array) */}
+            {!hasChildren && (
               <div className="sidebar-hover-wrapper">
                 <NavLink
                   to={item.url}
@@ -68,7 +73,7 @@ const Sidebar = () => {
                   )}
                 </NavLink>
 
-                {/* Hover popup (collapsed) */}
+                {/* Hover popup when collapsed */}
                 {collapsed && (
                   <div className="sidebar-hover-menu">
                     <NavLink
@@ -83,7 +88,8 @@ const Sidebar = () => {
               </div>
             )}
 
-            {item.children && (
+            {/* Parent Menu with Children */}
+            {hasChildren && (
               <div className="sidebar-hover-wrapper">
                 <div
                   className={`sidebar-item d-flex align-items-center gap-3 px-4 py-3 ${
@@ -117,7 +123,7 @@ const Sidebar = () => {
                   )}
                 </div>
 
-                {/* Hover popup with children */}
+                {/* Hover children when collapsed */}
                 {collapsed && (
                   <div className="sidebar-hover-menu">
                     <div className="hover-parent-title">{item.label}</div>
@@ -137,7 +143,8 @@ const Sidebar = () => {
               </div>
             )}
 
-            {!collapsed && openItem === index && item.children && (
+            {/* Expanded children */}
+            {!collapsed && openItem === index && hasChildren && (
               <div className="child-container ms-4 mt-2">
                 {item.children.map((child) => (
                   <NavLink
