@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiHome, FiChevronDown, FiUploadCloud, FiTrash2 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
@@ -7,11 +7,11 @@ import MenuItem from "@mui/material/MenuItem";
 import { BiExport } from "react-icons/bi";
 import { useCrudEmployee } from "../../../hooks/useCrudEmployee";
 import ReusablePopup from "../../../Reusbale/ReusablePopup";
+import api from "../../../api/api";
 import "./AddEmployee.css";
 
 const AddEmployee = () => {
   const navigate = useNavigate();
-  const { create } = useCrudEmployee();
   const { register, handleSubmit, control, formState: { errors }, reset, watch, setValue } = useForm();
   const [loading, setLoading] = useState(false);
   const [idProofsList, setIdProofsList] = useState([]);
@@ -22,6 +22,57 @@ const AddEmployee = () => {
     message: "",
     type: "success",
   });
+  
+  const [departments, setDepartments] = useState([]);
+  const [designations, setDesignations] = useState([]);
+  const [managerOptions, setManagerOptions] = useState([]);
+  const { create } = useCrudEmployee();
+ useEffect(() => {
+  const fetchRoles = async () => {
+    try {
+      const res = await api.get("/Employee/dropdown");
+
+      const rolesData = Array.isArray(res.data)
+        ? res.data
+        : res.data?.$values || [];
+
+      const activeRoles = rolesData.map(role => ({
+        id: role.id,
+        label: role.roleName
+      }));
+
+      setManagerOptions(activeRoles);
+
+    } catch (error) {
+      console.error("Role fetch error:", error);
+    }
+  };
+
+  fetchRoles();
+}, []);
+  useEffect(() => {
+    const fetchDropdownData = async () => {
+      try {
+        const [deptRes, desigRes] = await Promise.all([
+          api.get("/Department"),
+          api.get("/Designation")
+        ]);
+        
+        const getArray = (res) => {
+          if (Array.isArray(res)) return res;
+          if (res?.$values) return res.$values;
+          if (res?.data) return res.data;
+          return [];
+        };
+
+        setDepartments(getArray(deptRes.data));
+        setDesignations(getArray(desigRes.data));
+      } catch (err) {
+        console.error("Failed to fetch dropdown data", err);
+      }
+    };
+    fetchDropdownData();
+  }, []);
 
   const profilePhotoFiles = watch("profilePhoto");
 
@@ -32,7 +83,7 @@ const AddEmployee = () => {
   const handleIdProofChange = (e) => {
     const file = e.target.files[0];
     if (file && documentName.trim()) {
-      setIdProofsList(prev => [...prev, { [documentName.trim()]: file.name }]);
+      setIdProofsList(prev => [...prev, { name: documentName.trim(), file: file }]);
       setValue("idProof", "Attached", { shouldValidate: true });
       setDocumentName(""); // Clear text field after successful attach
     } else if (file) {
@@ -50,43 +101,44 @@ const AddEmployee = () => {
 
   const onSubmit = async (data) => {
     setLoading(true);
-    
-    const formData = new FormData();
-    formData.append("FullName", data.fullName || "");
-    formData.append("Gender", data.gender || "");
-    if (data.dob) formData.append("DateOfBirth", data.dob);
-    formData.append("PersonalEmail", data.email || "");
-    formData.append("PersonalPhone", data.phone || "");
-    formData.append("EmergencyContact", data.emergencyContact || "");
-    formData.append("Address", data.address || "");
-    
-    // Using a dummy ID for now since frontend dropdowns are hardcoded strings
-    formData.append("DepartmentId", "1"); 
-    formData.append("DesignationId", "1");
-    if (data.joiningDate) formData.append("JoiningDate", data.joiningDate);
-    formData.append("EmployeeCode", data.employeeId || "");
-    formData.append("ReportingManagerId", "1");
-    formData.append("Shift", data.shift || "");
-    
-    if (profilePhotoFiles && profilePhotoFiles.length > 0) {
-      formData.append("ProfilePhoto", profilePhotoFiles[0]);
-    }
-    
-    // Only appending the first ID proof for simplicity as the backend only accepts one IFormFile? IdProof
-    if (idProofsList.length > 0) {
-      const firstDocObj = idProofsList[0];
-      const docKey = Object.keys(firstDocObj)[0];
-      // Note: idProofsList currently stores filenames, not actual File objects in the state in the original code.
-      // To properly upload, the state logic would need to store File objects.
-    }
+    try {
+      const formData = new FormData();
+      formData.append("FullName", data.fullName || "");
+      formData.append("Gender", data.gender || "");
+      if (data.dob) formData.append("DateOfBirth", data.dob);
+      formData.append("PersonalEmail", data.email || "");
+      formData.append("PersonalPhone", data.phone || "");
+      formData.append("EmergencyContact", data.emergencyContact || "");
+      formData.append("Address", data.address || "");
 
-    const res = await create(formData);
-    setLoading(false);
-    
-    if (res.success) {
-      showPopup("Success!", "Employee saved successfully!");
-    } else {
+      formData.append("DepartmentId", String(data.department || ""));
+      formData.append("DesignationId", String(data.designation || ""));
+      if (data.joiningDate) formData.append("JoiningDate", data.joiningDate);
+      formData.append("EmployeeCode", data.employeeId || "");
+      formData.append("ReportingManagerId", String(data.manager || ""));
+      formData.append("Shift", data.shift || "");
+
+      if (profilePhotoFiles && profilePhotoFiles.length > 0) {
+        formData.append("ProfilePhoto", profilePhotoFiles[0]);
+      }
+
+      formData.append("CreatedBy", "admin");
+
+      if (idProofsList.length > 0) {
+        formData.append("IdProof", idProofsList[0].file);
+      }
+
+      const res = await create(formData);
+
+      if (res.success) {
+        showPopup("Success!", "Employee saved successfully!");
+      } else {
+        showPopup("Error!", res.message || "Failed to save employee.", "error");
+      }
+    } catch (error) {
       showPopup("Error!", "Failed to save employee.", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -151,29 +203,36 @@ const AddEmployee = () => {
                 <div className="col-md-6">
                   <label className="form-label-custom">Gender</label>
                   <Controller
-                      name="gender"
-                      control={control}
-                      rules={{ required: `Gender is required` }}
-                      defaultValue=""
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          select
-                          fullWidth
-                          size="small"
-                          error={!!errors.gender}
-                          helperText={errors.gender?.message}
-                          sx={textFieldStyle}
-                          SelectProps={{
-                            displayEmpty: true,
-                            renderValue: (value) => value ? value : <span style={{ color: '#9ca3af' }}>Select gender</span>
-                          }}
-                        >
-                          <MenuItem disabled value=""><em style={{ fontStyle: 'normal', color: '#9ca3af' }}>Select gender</em></MenuItem>
-                          {["Male", "Female", "Other"].map(opt => <MenuItem key={opt} value={opt} sx={{ fontSize: { xs: "13px", md: "14px" } }}>{opt}</MenuItem>)}
-                        </TextField>
-                      )}
-                    />
+                    name="gender"
+                    control={control}
+                    rules={{ required: "Gender is required" }}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        select
+                        fullWidth
+                        size="small"
+                        error={!!errors.gender}
+                        helperText={errors.gender?.message}
+                        sx={textFieldStyle}
+                        SelectProps={{
+                          displayEmpty: true,
+                          renderValue: (value) =>
+                            value ? value : <span style={{ color: "#9ca3af" }}>Select gender</span>
+                        }}
+                      >
+                        <MenuItem disabled value="">
+                          Select gender
+                        </MenuItem>
+                        {["Male", "Female", "Other"].map((gender) => (
+                          <MenuItem key={gender} value={gender}>
+                            {gender}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    )}
+                  />
                 </div>
                 
                 <div className="col-md-6">
@@ -280,7 +339,7 @@ const AddEmployee = () => {
                           }}
                         >
                           <MenuItem disabled value=""><em style={{ fontStyle: 'normal', color: '#9ca3af' }}>Select department</em></MenuItem>
-                          {["Marketing", "Sales", "Finance", "HR", "IT", "Operations"].map(opt => <MenuItem key={opt} value={opt} sx={{ fontSize: { xs: "13px", md: "14px" } }}>{opt}</MenuItem>)}
+                          {departments.map(opt => <MenuItem key={opt.id} value={opt.id} sx={{ fontSize: { xs: "13px", md: "14px" } }}>{opt.departmentName}</MenuItem>)}
                         </TextField>
                       )}
                     />
@@ -307,7 +366,7 @@ const AddEmployee = () => {
                           }}
                         >
                           <MenuItem disabled value=""><em style={{ fontStyle: 'normal', color: '#9ca3af' }}>Select designation</em></MenuItem>
-                          {["Manager", "Representative", "Analyst", "Developer", "Specialist"].map(opt => <MenuItem key={opt} value={opt} sx={{ fontSize: { xs: "13px", md: "14px" } }}>{opt}</MenuItem>)}
+                          {designations.map(opt => <MenuItem key={opt.id} value={opt.id} sx={{ fontSize: { xs: "13px", md: "14px" } }}>{opt.designationName}</MenuItem>)}
                         </TextField>
                       )}
                     />
@@ -363,7 +422,11 @@ const AddEmployee = () => {
                           }}
                         >
                           <MenuItem disabled value=""><em style={{ fontStyle: 'normal', color: '#9ca3af' }}>Select manager</em></MenuItem>
-                          {["Alice Smith", "Mark Johnson", "Sarah Connor", "John Doe"].map(opt => <MenuItem key={opt} value={opt} sx={{ fontSize: { xs: "13px", md: "14px" } }}>{opt}</MenuItem>)}
+                          {managerOptions.map((manager) => (
+                            <MenuItem key={manager.id} value={manager.id} sx={{ fontSize: { xs: "13px", md: "14px" } }}>
+                              {manager.label}
+                            </MenuItem>
+                          ))}
                         </TextField>
                       )}
                     />
@@ -459,12 +522,10 @@ const AddEmployee = () => {
                   {idProofsList.length > 0 && (
                     <div className="mt-2 d-flex flex-wrap gap-2">
                       {idProofsList.map((docObj, idx) => {
-                        const docKey = Object.keys(docObj)[0];
-                        const docFile = docObj[docKey];
                         return (
                           <div key={idx} className="badge bg-light text-dark border d-flex align-items-center gap-2 p-2 rounded-2" style={{ fontSize: '13px' }}>
                             <span className="text-truncate" style={{ maxWidth: '180px' }}>
-                              <strong>{docKey}:</strong> {docFile}
+                              <strong>{docObj.name}:</strong> {docObj.file.name}
                             </span>
                             <FiTrash2 
                               className="text-danger cursor-pointer" 

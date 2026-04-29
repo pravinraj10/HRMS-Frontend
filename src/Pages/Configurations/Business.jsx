@@ -6,6 +6,7 @@ import ReusableSearch from "../../Reusbale/ReusableSearch";
 import ReusableTable from "../../Reusbale/ReusableTable";
 import ResuableForm from "../../Reusbale/ReusableForm";
 import ReusablePopup from "../../Reusbale/ReusablePopup";
+import ReusableConfirm from "../../Reusbale/ReusableConfirm";
 import api from "../../api/api";
 import "./Business.css";
 const Business = () => {
@@ -20,6 +21,8 @@ const Business = () => {
   const [unitData, setUnitData] = useState([]);
   const [isFetchingUnits, setIsFetchingUnits] = useState(false);
   const [fetchError, setFetchError] = useState("");
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState(null);
 
   const {
     register: registerEntity,
@@ -191,26 +194,33 @@ const Business = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteUnit = async (id) => {
-    if (window.confirm("Are you sure you want to delete this unit?")) {
-      try {
-        await api.delete(`/BusinessUnit/${id}`);
-        fetchUnits();
-        setPopupState({
-          isOpen: true,
-          title: "Deleted!",
-          message: "Business Unit deleted successfully.",
-          type: "success"
-        });
-      } catch (error) {
-        console.error("Delete Error:", error);
-        setPopupState({
-          isOpen: true,
-          title: "Error",
-          message: "Failed to delete Business Unit.",
-          type: "error"
-        });
-      }
+  const handleDeleteUnit = (row) => {
+    setDeleteItem(row);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteItem) return;
+    try {
+      await api.delete(`/BusinessUnit/${deleteItem.id}`);
+      fetchUnits();
+      setPopupState({
+        isOpen: true,
+        title: "Deleted!",
+        message: "Business Unit deleted successfully.",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Delete Error:", error);
+      setPopupState({
+        isOpen: true,
+        title: "Error",
+        message: "Failed to delete Business Unit.",
+        type: "error",
+      });
+    } finally {
+      setIsConfirmOpen(false);
+      setDeleteItem(null);
     }
   };
 
@@ -232,7 +242,7 @@ const Business = () => {
             className="text-danger "
             size={18}
             style={{ cursor: "pointer" }}
-            onClick={() => handleDeleteUnit(row.id)}
+            onClick={() => handleDeleteUnit(row)}
           />
         </div>
       ),
@@ -633,6 +643,14 @@ const Business = () => {
           </div>
         </div>
       </ResuableForm>
+
+       <ReusableConfirm
+        isOpen={isConfirmOpen}
+        title="Confirm Deletion"
+        message={`Are you sure you want to delete unit "${deleteItem?.unitName || "this unit"}"?`}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setIsConfirmOpen(false)}
+      />
 
       <ReusablePopup 
         isOpen={popupState.isOpen}

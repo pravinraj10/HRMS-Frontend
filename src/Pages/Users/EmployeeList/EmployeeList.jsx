@@ -7,33 +7,11 @@ import ReusableDropdown from "../../../Reusbale/ReusableDropdown";
 import ReusableSearch from "../../../Reusbale/ReusableSearch";
 import ReusableTable from "../../../Reusbale/ReusableTable";
 import ReusableConfirm from "../../../Reusbale/ReusableConfirm";
+import ReusablePopup from "../../../Reusbale/ReusablePopup";
 import { useCrudEmployee } from "../../../hooks/useCrudEmployee";
+import api from "../../../api/api";
 import "./EmployeeList.css";
 
-const departmentOptions = [
-  { label: "Marketing", value: "Marketing" },
-  { label: "Sales", value: "Sales" },
-  { label: "Finance", value: "Finance" },
-  { label: "HR", value: "HR" },
-  { label: "IT", value: "IT" },
-  { label: "Operations", value: "Operations" },
-  { label: "Customer Service", value: "Customer Service" },
-  { label: "Product", value: "Product" },
-  { label: "Legal", value: "Legal" },
-  { label: "Research", value: "Research" },
-];
-
-const roleOptions = [
-  { label: "Manager", value: "Manager" },
-  { label: "Representative", value: "Representative" },
-  { label: "Analyst", value: "Analyst" },
-  { label: "Specialist", value: "Specialist" },
-  { label: "Support", value: "Support" },
-  { label: "Coordinator", value: "Coordinator" },
-  { label: "Agent", value: "Agent" },
-  { label: "Counsel", value: "Counsel" },
-  { label: "Developer", value: "Developer" },
-];
 
 const statusOptions = [
   { label: "Active", value: "Active" },
@@ -42,7 +20,7 @@ const statusOptions = [
 
 const EmployeeList = () => {
   const navigate = useNavigate();
-  const { employees, loading, remove } = useCrudEmployee();
+  const { employees, loading, searchLoading, remove, toggleStatus, search } = useCrudEmployee();
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     department: "",
@@ -50,10 +28,61 @@ const EmployeeList = () => {
     status: "",
   });
 
+  const [departments, setDepartments] = useState([]);
+  const [roles, setRoles] = useState([]);
+
   const [visibleCount, setVisibleCount] = useState(10);
   const [isFetching, setIsFetching] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [deleteItem, setDeleteItem] = useState(null);
+  const [popupState, setPopupState] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "success",
+  });
+
+  // Fetch filter dropdown data
+  useEffect(() => {
+    const fetchDropdownData = async () => {
+      try {
+        const [deptRes, desigRes] = await Promise.all([
+          api.get("/Department"),
+          api.get("/Designation")
+        ]);
+        
+        const getArray = (res) => {
+          if (Array.isArray(res)) return res;
+          if (res?.$values) return res.$values;
+          if (res?.data) return res.data;
+          return [];
+        };
+
+        setDepartments(getArray(deptRes.data).map(d => ({ label: d.departmentName, value: d.departmentName })));
+        setRoles(getArray(desigRes.data).map(d => ({ label: d.designationName, value: d.designationName })));
+      } catch (err) {
+        console.error("Failed to fetch dropdown data", err);
+      }
+    };
+    fetchDropdownData();
+  }, []);
+
+  // Backend Search implementation
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchTerm) {
+        search(searchTerm);
+      } else {
+        search(""); 
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, search]);
+
+  const showPopup = (title, message, type = "success") => {
+    setPopupState({ isOpen: true, title, message, type });
+  };
 
   const handleDelete = (row) => {
     setDeleteItem(row);
@@ -62,13 +91,30 @@ const EmployeeList = () => {
 
   const handleConfirmDelete = async () => {
     if (!deleteItem) return;
-    await remove(deleteItem.id);
+    const res = await remove(deleteItem.id);
+    if (res.success) {
+      showPopup("Success!", "Employee deleted successfully!");
+    } else {
+      showPopup("Error!", "Failed to delete employee.", "error");
+    }
     setIsConfirmOpen(false);
     setDeleteItem(null);
   };
 
+  const handleToggleStatus = async (row) => {
+    // Clear status filter so the row stays visible after its status changes
+    setFilters((prev) => ({ ...prev, status: "" }));
+    const res = await toggleStatus(row.id, row.status);
+    if (res.success) {
+      const newStatus = row.status === "Active" ? "Inactive" : "Active";
+      showPopup("Success!", `Employee status updated to ${newStatus} successfully!`);
+    } else {
+      showPopup("Error!", "Failed to update employee status.", "error");
+    }
+  };
+
   const columns = [
-    { key: "id", label: "Employee ID", className: "emp-id-td" },
+    { key: "employeeId", label: "Employee ID", className: "emp-id-td" },
     { key: "name", label: "Name", className: "emp-name-td" },
     { key: "department", label: "Department", className: "emp-other-td" },
     { key: "designation", label: "Designation", className: "emp-other-td" },
@@ -103,6 +149,14 @@ const EmployeeList = () => {
             title="Delete" 
             onClick={() => handleDelete(row)}
           />
+          <label className="ios-toggle" title="Toggle Status">
+            <input
+              type="checkbox"
+              checked={row.status === "Active"}
+              onChange={() => handleToggleStatus(row)}
+            />
+            <span className="ios-slider"></span>
+          </label>
         </div>
       ),
     },
@@ -117,17 +171,13 @@ const EmployeeList = () => {
 
   const filteredData = useMemo(() => {
     return (employees || []).filter((item) => {
-      const matchSearch =
-        item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.id?.toLowerCase().includes(searchTerm.toLowerCase());
-
       const matchDepartment = !filters.department || item.department === filters.department;
-      const matchRole = !filters.role || item.designation?.toLowerCase().includes(filters.role.toLowerCase());
+      const matchRole = !filters.role || item.designation === filters.role;
       const matchStatus = !filters.status || item.status === filters.status;
 
-      return matchSearch && matchDepartment && matchRole && matchStatus;
+      return matchDepartment && matchRole && matchStatus;
     });
-  }, [searchTerm, filters, employees]);
+  }, [filters, employees]);
 
   const paginatedData = filteredData.slice(0, visibleCount);
 
@@ -171,7 +221,7 @@ const EmployeeList = () => {
             <div className="filter-dropdown-wrapper">
               <ReusableDropdown
                 placeholder="Department"
-                options={departmentOptions}
+                options={departments}
                 value={filters.department}
                 onChange={(val) => handleFilterChange("department", val)}
               />
@@ -179,7 +229,7 @@ const EmployeeList = () => {
             <div className="filter-dropdown-wrapper">
               <ReusableDropdown
                 placeholder="Role"
-                options={roleOptions}
+                options={roles}
                 value={filters.role}
                 onChange={(val) => handleFilterChange("role", val)}
               />
@@ -192,9 +242,6 @@ const EmployeeList = () => {
                 onChange={(val) => handleFilterChange("status", val)}
               />
             </div>
-            <button className="btn-filter-action btn-search-emp">
-              <FiSearch /> Search
-            </button>
             <button
               className="btn-filter-action btn-clear-emp"
               onClick={() => {
@@ -217,11 +264,11 @@ const EmployeeList = () => {
 
         {/* Data Table */}
         <div className="emp-table-wrapper">
-          {filteredData.length > 0 || loading ? (
+          {filteredData.length > 0 || loading || searchLoading ? (
             <ReusableTable 
               columns={columns} 
               data={paginatedData} 
-              isFetching={loading || isFetching}
+              isFetching={loading || searchLoading || isFetching}
               onLoadMore={loadMore}
             />
           ) : (
@@ -238,6 +285,14 @@ const EmployeeList = () => {
         message={`Are you sure you want to delete ${deleteItem?.name || "this employee"}?`}
         onConfirm={handleConfirmDelete}
         onCancel={() => setIsConfirmOpen(false)}
+      />
+
+      <ReusablePopup
+        isOpen={popupState.isOpen}
+        onClose={() => setPopupState((prev) => ({ ...prev, isOpen: false }))}
+        title={popupState.title}
+        message={popupState.message}
+        type={popupState.type}
       />
     </div>
   );

@@ -13,20 +13,16 @@
   margin-bottom: 24px;
 }
 
-.page-title {
-  font-size: 24px;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
+.page-title, .general-title {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  margin-bottom: 4px !important;
 }
 
-.breadcrumbs {
-  font-size: 14px;
-  color: #64748b;
-  margin-top: 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.breadcrumbs, .breadcrumb-container {
+  font-size: 12px;
+  color: #94a3b8;
 }
 
 .current-page {
@@ -34,18 +30,20 @@
   font-weight: 500;
 }
 
-.add-btn {
-  background-color: #1e40af;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
+.add-btn, .add-btn-custom {
+  background-color: #1a56a6 !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 18px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 6px -1px rgba(26, 86, 166, 0.2) !important;
+  transition: all 0.2s !important;
 }
 
 .add-btn:hover {
@@ -77,6 +75,31 @@
   flex-grow: 1;
   max-width: 400px;
   margin-left: auto;
+}
+
+.btn-filter-action {
+  border: none;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-clear-emp {
+  background-color: white;
+  color: #3b82f6;
+  border: 1px solid #3b82f6;
+}
+
+.btn-clear-emp:hover {
+  background-color: #eff6ff;
 }
 
 .status-badge-style { 
@@ -174,4 +197,54 @@
   color: #1e293b;
   font-weight: 500;
   margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .designation-page {
+    padding: 15px;
+  }
+  .designation-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  .add-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .filter-bar {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .filter-item, .search-item {
+    width: 100%;
+  }
+
+  /* Responsive Adjustments */
+  .designation-content,
+  .designation-content table td,
+  .designation-content table th,
+  .btn-filter-action {
+    font-size: 13px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  /* Even smaller text */
+  .designation-content,
+  .designation-content table td,
+  .designation-content table th,
+  .status-badge-style,
+  .btn-filter-action {
+    font-size: 12px !important;
+  }
+
+  .status-badge-style {
+    padding: 4px 12px;
+    min-width: 70px;
+  }
+
+  .btn-filter-action {
+    width: 100%;
+  }
 }

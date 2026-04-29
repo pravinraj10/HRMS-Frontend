@@ -7,21 +7,11 @@ import ReusableConfirm from "../../../Reusbale/ReusableConfirm";
 import ReusablePopup from "../../../Reusbale/ReusablePopup";
 import ResuableForm from "../../../Reusbale/ReusableForm";
 import { useCrud } from "../../../hooks/useCrud";
+import api from "../../../api/api";
 import { useForm } from "react-hook-form";
 import TextField from "@mui/material/TextField";
+import "./Roles.css";
 
-// const getDepartments = () => ["Engineer", "HR", "Sales", "Product", "Finance"];
-// const departments = getDepartments();
-
-const mockRolesData = Array.from({ length: 50 }, (_, i) => ({
-  id: i + 1,
-  name: `Senior Software Engineer`,
-  // department: departments[i % departments.length],
-  type: "Full-Time",
-  description: "Lead technical implementation and architecture decisions",
-  users: Math.floor(Math.random() * 50) + 1,
-  status: i % 3 === 0 ? "InActive" : "Active",
-}));
 
 const Roles = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,12 +21,14 @@ const Roles = () => {
     status: "",
   });
 
-  const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(10);
   const [isFetching, setIsFetching] = useState(false);
+  const [assignedUserCountsByRoleId, setAssignedUserCountsByRoleId] = useState({});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [viewingItem, setViewingItem] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [deleteItem, setDeleteItem] = useState(null);
 
@@ -47,8 +39,8 @@ const Roles = () => {
     type: "success",
   });
 
-  const { roles, departments: apiDepartments, loading: crudLoading, create, update, remove } = useCrud();
-  const apiData = roles && roles.length > 0 ? roles : mockRolesData;
+  const { roles, displayedRoles, departments: apiDepartments, loading: crudLoading, create, update, remove, toggleStatus, searchRole } = useCrud();
+  const apiData = displayedRoles || roles || [];
 
   const {
     register,
@@ -59,12 +51,86 @@ const Roles = () => {
     formState: { errors },
   } = useForm();
 
+  const normalizeKey = (value) =>
+    String(value ?? "")
+      .trim()
+      .toLowerCase();
+
+  const fetchAssignedUsersCount = async () => {
+    try {
+      const response = await api.get("/Employee");
+
+      const employees = Array.isArray(response.data)
+        ? response.data
+        : response.data?.$values || [];
+
+      const roleCounts = {};
+      const roleNameToId = {};
+      (roles || []).forEach((role) => {
+        if (role?.name) {
+          roleNameToId[normalizeKey(role.name)] = role.id;
+        }
+      });
+
+      employees.forEach((emp) => {
+        const roleId =
+          emp.reportingManagerId ??
+          emp.reportingManager ??
+          emp.reportingManagerID;
+
+        if (roleId !== null && roleId !== undefined && roleId !== "") {
+          roleCounts[roleId] = (roleCounts[roleId] || 0) + 1;
+          return;
+        }
+
+        // Backward compatibility: older records may only have manager name text.
+        const managerName =
+          emp.reportingManagerName ||
+          emp.roleName ||
+          emp.manager ||
+          emp.reportingManagerLabel ||
+          "";
+        const mappedRoleId = roleNameToId[normalizeKey(managerName)];
+        if (mappedRoleId !== null && mappedRoleId !== undefined) {
+          roleCounts[mappedRoleId] = (roleCounts[mappedRoleId] || 0) + 1;
+        }
+      });
+
+      setAssignedUserCountsByRoleId(roleCounts);
+    } catch (error) {
+      console.error("Assigned user count error:", error);
+    }
+  };
+
   useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 1200);
+    fetchAssignedUsersCount();
+  }, [roles.length, displayedRoles.length]);
+
+  useEffect(() => {
+    const handleWindowFocus = () => fetchAssignedUsersCount();
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        fetchAssignedUsersCount();
+      }
+    };
+
+    window.addEventListener("focus", handleWindowFocus);
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    // Keep counts fresh if assignments are changed in another tab/window.
+    const intervalId = setInterval(fetchAssignedUsersCount, 30000);
+
+    return () => {
+      window.removeEventListener("focus", handleWindowFocus);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      clearInterval(intervalId);
+    };
   }, []);
+
+  const getAssignedUsersCount = (row) => {
+    return assignedUserCountsByRoleId[row.id] || 0;
+  };
+
 
   const showPopup = (title, message, type = "success") => {
     setPopupState({ isOpen: true, title, message, type });
@@ -76,12 +142,33 @@ const Roles = () => {
     setEditingId(null);
   };
 
-  const handleView = (row) => console.log("View", row);
+  const handleView = (row) => {
+    setViewingItem(row);
+    setIsViewModalOpen(true);
+  };
+
+  const handleToggleStatus = async (row) => {
+    const newIsActive = row.status !== "Active";
+    try {
+      await toggleStatus("Role", row.id, newIsActive);
+      showPopup(
+        "Success!",
+        `Role ${newIsActive ? "activated" : "deactivated"} successfully!`,
+        "success"
+      );
+    } catch (error) {
+      console.error("Toggle error:", error);
+      showPopup("Error!", "Failed to update status. Please try again.", "error");
+    }
+  };
 
   const handleEdit = (row) => {
-    Object.keys(row).forEach((key) => {
-      setValue(key, row[key]);
-    });
+    setValue("name", row.name);
+    setValue("department", row.department);
+    setValue("departmentId", row.departmentId);
+    setValue("type", row.type);
+    setValue("description", row.description);
+    setValue("status", row.status);
     setEditingId(row.id);
     setIsModalOpen(true);
   };
@@ -112,10 +199,14 @@ const Roles = () => {
   };
 
   const onSubmit = async (data) => {
+    const selectedDept = (apiDepartments || []).find(
+      (d) => d.departmentName === data.department
+    );
+
     const payload = {
       ...data,
+      departmentId: selectedDept?.id || data.departmentId || null,
       status: data.status || "Active",
-      users: data.users || 0,
     };
 
     try {
@@ -137,11 +228,9 @@ const Roles = () => {
     const isActive = status === "Active";
     return (
       <span
-        className="badge-custom d-inline-flex align-items-center justify-content-center fw-bold text-white rounded"
-        style={{
-          backgroundColor: isActive ? "#06A84D" : "#E3B80C",
-          borderRadius: "8px",
-        }}
+        className={`status-badge-style d-inline-flex align-items-center justify-content-center fw-bold text-white ${
+          isActive ? "status-badge-active" : "status-badge-inactive"
+        }`}
       >
         {status}
       </span>
@@ -153,13 +242,25 @@ const Roles = () => {
       key: "name",
       label: "Roles Name",
       className: "fw-semibold text-role-name",
+      headerClassName: "text-white",
     },
     { key: "department", label: "Department", className: "text-secondary" },
     { key: "description", label: "Description", className: "text-secondary" },
     {
       key: "users",
       label: "Assigned User",
-      className: "text-center text-secondary",
+      className: "text-center",
+      render: (row) => {
+        const assignedUsersCount = getAssignedUsersCount(row);
+        return (
+          <span className="assigned-user-badge">
+            {assignedUsersCount}
+          <span className="assigned-user-label">
+              {assignedUsersCount === 1 ? " Employee" : " Employees"}
+            </span>
+          </span>
+        );
+      },
     },
     {
       key: "status",
@@ -170,7 +271,7 @@ const Roles = () => {
       key: "action",
       label: "Action",
       render: (row) => (
-        <div className="d-flex align-items-center action-icons-container">
+        <div className="d-flex justify-content-center align-items-center gap-2">
           <FiEye
             className="action-icon icon-view"
             onClick={() => handleView(row)}
@@ -186,6 +287,14 @@ const Roles = () => {
             onClick={() => handleDelete(row)}
             title="Delete"
           />
+          <label className="ios-toggle" title={row.status === "Active" ? "Deactivate" : "Activate"} style={{ margin: 0 }}>
+            <input
+              type="checkbox"
+              checked={row.status === "Active"}
+              onChange={() => handleToggleStatus(row)}
+            />
+            <span className="ios-slider"></span>
+          </label>
         </div>
       ),
     },
@@ -263,45 +372,6 @@ const Roles = () => {
       className="p-3 p-md-4 min-vh-100"
       style={{ backgroundColor: "#f8fafc", fontFamily: "'Inter', sans-serif" }}
     >
-      <style>{`
-      .text-role-name { color: #212121 !important; }
-        .custom-primary-btn {
-          background-color: #1e5baf;
-          color: #ffffff;
-          padding: 0.625rem 1.25rem;
-          border-radius: 6px;
-          font-size: 0.875rem;
-          transition: background-color 0.2s;
-        }
-        .custom-primary-btn:hover {
-          background-color: #15468a;
-          color: #ffffff;
-        }
-        .title-custom { font-size: 1.5rem; }
-        .breadcrumb-custom { font-size: 12px; color: #94a3b8; }
-        .breadcrumb-custom span { color: #4b5563; }
-        .badge-custom {
-          padding: 6px 16px;
-          font-size: 13px;
-          min-width: 100px;
-          height: 32px;
-          letter-spacing: 0.3px;
-        }
-        .action-icons-container { gap: 1rem; }
-        .action-icon {
-          cursor: pointer;
-          width: 1.125rem;
-          height: 1.125rem;
-          transition: opacity 0.2s, transform 0.1s;
-        }
-        .action-icon:active { transform: scale(0.9); }
-        .icon-view { color: #136DEC; }
-        .icon-edit { color: #6b7280; }
-        .icon-delete { color: #ef4444; }
-        
-       
-      `}</style>
-
       {/* Header Section */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div className="header-titles">
@@ -380,7 +450,10 @@ const Roles = () => {
             <ReusableSearch
               placeholder="Search Role"
               value={searchTerm}
-              onChange={setSearchTerm}
+              onChange={(val) => {
+                setSearchTerm(val);
+                if (searchRole) searchRole(val);
+              }}
             />
           </div>
         </div>
@@ -389,8 +462,8 @@ const Roles = () => {
         {filteredData && filteredData.length > 0 ? (
           <ReusableTable
             columns={columns}
-            data={loading ? [] : paginatedData}
-            isFetching={loading || isFetching}
+            data={crudLoading ? [] : paginatedData}
+            isFetching={crudLoading || isFetching}
             onLoadMore={loadMore}
           />
         ) : (
@@ -479,6 +552,58 @@ const Roles = () => {
             )}
           </div>
         ))}
+      </ResuableForm>
+
+      <ResuableForm
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        title="View Role"
+        footer={false}
+      >
+        {viewingItem && (
+          <div className="view-details">
+            <div className="detail-row">
+              <span className="detail-label">Role Name:</span>
+              <span className="detail-value">{viewingItem.name || "N/A"}</span>
+            </div>
+
+            <div className="detail-row">
+              <span className="detail-label">Department:</span>
+              <span className="detail-value">{viewingItem.department || "N/A"}</span>
+            </div>
+
+            <div className="detail-row">
+              <span className="detail-label">Role Type:</span>
+              <span className="detail-value">{viewingItem.type || "N/A"}</span>
+            </div>
+
+            <div className="detail-row">
+              <span className="detail-label">Description:</span>
+              <span className="detail-value">{viewingItem.description || "N/A"}</span>
+            </div>
+
+            <div className="detail-row">
+              <span className="detail-label">Assigned User:</span>
+              <span className="detail-value">{getAssignedUsersCount(viewingItem)}</span>
+            </div>
+
+            <div className="detail-row">
+              <span className="detail-label">Status:</span>
+              <span>
+                <StatusBadge status={viewingItem.status || "Inactive"} />
+              </span>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-4 text-end">
+          <button
+            className="btn btn-secondary view-close-btn"
+            onClick={() => setIsViewModalOpen(false)}
+          >
+            Close
+          </button>
+        </div>
       </ResuableForm>
 
       <ReusableConfirm

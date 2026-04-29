@@ -59,7 +59,16 @@ const Holiday = () => {
   const handleEdit = (row) => {
     setEditingItem(row);
     setValue("title", row.title);
-    setValue("holidayDate", row.date ? row.date.split("/").reverse().join("-") : ""); // Assuming date comes as DD/MM/YYYY
+    
+    let formattedDate = "";
+    if (row.date) {
+      const parts = row.date.split(/[\/-]/);
+      if (parts.length === 3) {
+        formattedDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+    
+    setValue("holidayDate", formattedDate);
     setValue("description", row.description);
     setIsModalOpen(true);
   };
@@ -146,7 +155,7 @@ const Holiday = () => {
         <span
           className="d-inline-flex align-items-center justify-content-center text-white fw-bold status-badge-style"
           style={{
-            backgroundColor: row.status === "Active" ? "#22c55e" : "#ef4444",
+            backgroundColor: row.status === "Active" ? "#06A84D" : "#E3B80C",
           }}
         >
           {row.status}
@@ -178,13 +187,13 @@ const Holiday = () => {
     <div className="holiday-page">
       <div className="holiday-header">
         <div className="header-left">
-          <h2 className="page-title">Holiday</h2>
-          <div className="breadcrumbs">
-            <FiHome size={14} /> / Settings / <span className="current-page">Holidays</span>
+          <h2 className="general-title mb-0">Holidays</h2>
+          <div className="d-flex align-items-center gap-2 breadcrumb-container">
+            <FiHome size={14} /> / Settings / <span className="fw-medium text-dark">Holidays</span>
           </div>
         </div>
         <button
-          className="add-btn"
+          className="btn text-white d-flex align-items-center gap-2 border-0 shadow-sm add-btn add-btn-custom"
           onClick={() => {
             reset();
             setEditingItem(null);
@@ -196,19 +205,35 @@ const Holiday = () => {
       </div>
 
       <div className="holiday-content card">
-        <div className="search-bar-container mb-3">
-          <ReusableSearch
-            placeholder="Search Holiday..."
-            value={searchTerm}
-            onChange={setSearchTerm}
-          />
+        <div className="filter-controls-row">
+          <div className="filter-group-left">
+            <button
+              className="btn-filter-action btn-clear-emp"
+              onClick={() => setSearchTerm("")}
+            >
+              Clear
+            </button>
+          </div>
+          <div className="search-bar-container">
+            <ReusableSearch
+              placeholder="Search Holiday..."
+              value={searchTerm}
+              onChange={setSearchTerm}
+            />
+          </div>
         </div>
 
-        <ReusableTable
-          columns={columns}
-          data={loading ? [] : filteredData}
-          isFetching={loading}
-        />
+        {filteredData.length > 0 || loading ? (
+          <ReusableTable
+            columns={columns}
+            data={loading ? [] : filteredData}
+            isFetching={loading}
+          />
+        ) : (
+          <div className="text-center py-5 rounded-3 bg-light text-muted">
+            No records found
+          </div>
+        )}
       </div>
 
       {/* Add/Edit Modal */}

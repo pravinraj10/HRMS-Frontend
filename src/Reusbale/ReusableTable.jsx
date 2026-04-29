@@ -35,7 +35,7 @@ const ReusableTable = ({ columns, data, isFetching, onLoadMore }) => {
         <thead>
           <tr>
             {columns.map((col, index) => (
-              <th key={index} className={`text-white fw-semibold text-capitalize rt-th ${col.className || ""}`}>
+              <th key={index} className={`text-white fw-semibold text-capitalize rt-th ${col.headerClassName || ""}`}>
                 {col.label}
               </th>
 

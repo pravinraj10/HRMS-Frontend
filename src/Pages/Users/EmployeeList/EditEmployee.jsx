@@ -12,12 +12,13 @@ import { FiTrash2 } from "react-icons/fi";
 import profileImg from "../../../asset/image/profile.jpg";
 import { useCrudEmployee } from "../../../hooks/useCrudEmployee";
 import ReusablePopup from "../../../Reusbale/ReusablePopup";
+import api from "../../../api/api";
 import "./EditEmployee.css";
 
 const EditEmployee = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { employees, update, getById } = useCrudEmployee();
+const {  update, fetchById } = useCrudEmployee();
   
   const { register, handleSubmit, control, formState: { errors }, reset } = useForm();
   const [loading, setLoading] = useState(false);
@@ -38,6 +39,10 @@ const EditEmployee = () => {
     message: "",
     type: "success",
   });
+  
+  const [departments, setDepartments] = useState([]);
+  const [designations, setDesignations] = useState([]);
+  const [managerOptions, setManagerOptions] = useState([]);
 
   const showPopup = (title, message, type = "success") => {
     setPopupState({ isOpen: true, title, message, type });
@@ -51,7 +56,6 @@ const EditEmployee = () => {
     setUpdatingDoc({ type, index });
     fileInputRef.current && fileInputRef.current.click();
   };
-
   const handleDocUpdate = (e) => {
     const file = e.target.files[0];
     if (file && updatingDoc) {
@@ -59,14 +63,20 @@ const EditEmployee = () => {
         const newData = { ...prev };
         if (updatingDoc.type === 'newIdProof') {
           const newIdProofs = [...(newData.idProofs || [])];
-          newIdProofs.push({ [documentName.trim()]: file.name });
+          newIdProofs.push({
+          name: documentName.trim(),
+          file: file
+          });
           newData.idProofs = newIdProofs;
           setDocumentName(""); // Clear after adding
         } else if (updatingDoc.type === 'idProof' && updatingDoc.index !== null) {
           const newIdProofs = [...(newData.idProofs || [])];
           const oldObj = newIdProofs[updatingDoc.index];
           const oldKey = Object.keys(oldObj)[0];
-          newIdProofs[updatingDoc.index] = { [oldKey]: file.name };
+          newIdProofs[updatingDoc.index] = {
+           name: oldKey,
+           file: file
+           };
           newData.idProofs = newIdProofs;
         }
         return newData;
@@ -76,38 +86,78 @@ const EditEmployee = () => {
     }
   };
 
-  // Load employee data into form
+  // Load dropdown data
   useEffect(() => {
-    if (!id || employees.length === 0 || isDataLoaded) return;
-    
-    const employee = getById(id);
-    if (employee) {
+    const fetchDropdownData = async () => {
+      try {
+        const [deptRes, desigRes, managerRes] = await Promise.all([
+          api.get("/Department"),
+          api.get("/Designation"),
+          api.get("/Employee/dropdown")
+        ]);
+        
+        const getArray = (res) => {
+          if (Array.isArray(res)) return res;
+          if (res?.$values) return res.$values;
+          if (res?.data) return res.data;
+          return [];
+        };
+
+        setDepartments(getArray(deptRes.data));
+        setDesignations(getArray(desigRes.data));
+        const managers = getArray(managerRes.data).map((role) => ({
+          id: role.id,
+          label: role.roleName,
+        }));
+        setManagerOptions(managers);
+      } catch (err) {
+        console.error("Failed to fetch dropdown data", err);
+      }
+    };
+    fetchDropdownData();
+  }, []);
+
+  // Load employee data into form
+ useEffect(() => {
+ const loadEmployee = async () => {
+   if (!id || isDataLoaded) return;
+
+   const employee = await fetchById(id);
+
+   if(employee){
       setEmployeeData(employee);
+
       reset({
         fullName: employee.name || "",
         gender: employee.gender || "",
         dob: employee.dob || "",
         email: employee.email || "",
         phone: employee.phone || "",
-        department: employee.department || "",
-        designation: employee.designation || "",
-        manager: employee.manager || "",
-        joiningDate: employee.joiningDate || "",
-        employeeId: employee.id || "",
-        shift: employee.shift || "",
-        officeEmail: employee.email || "", // Fallback to personal email if not distinguished
         emergencyContact: employee.emergencyContact || "",
         address: employee.address || "",
+
+        department: employee.department || "",
+        designation: employee.designation || "",
+
+        manager: employee.reportingManagerId || "",
+
+        joiningDate: employee.joiningDate || "",
+        employeeId: employee.employeeId || "",
+        shift: employee.shift || ""
       });
+
       setIsDataLoaded(true);
-    }
-  }, [id, employees, getById, reset, isDataLoaded]);
+   }
+ };
+
+ loadEmployee();
+}, [id, fetchById, reset, isDataLoaded]);
 
   const onSubmit = async (data) => {
     setLoading(true);
     
     const payload = {
-      ...employeeData, // Start with all current data to preserve unedited fields like profilePhoto, idProofs, contract
+      ...employeeData, 
       name: data.fullName,
       gender: data.gender,
       dob: data.dob,
@@ -116,8 +166,10 @@ const EditEmployee = () => {
       department: data.department,
       designation: data.designation,
       manager: data.manager,
+      reportingManagerId: data.manager,
       joiningDate: data.joiningDate,
       shift: data.shift,
+      employeeCode: data.employeeId,
       emergencyContact: data.emergencyContact,
       address: data.address,
       status: employeeData?.status || "Active"
@@ -173,12 +225,19 @@ const EditEmployee = () => {
         {/* Profile Bar - Fixed at top below header */}
         <div className="profile-bar-card mb-4 d-flex align-items-center gap-3">
            <div className="profile-avatar">
-             <img src={employeeData?.profilePhoto ? (employeeData.profilePhoto.startsWith('http') ? employeeData.profilePhoto : `http://localhost:4000/${employeeData.profilePhoto}`) : profileImg} alt="Profile" />
+             <img 
+         src={employeeData?.profilePhoto 
+         ? (employeeData.profilePhoto.startsWith('http') 
+          ? employeeData.profilePhoto 
+          : `https://localhost:44306${employeeData.profilePhoto}`)
+         : profileImg} 
+         alt="Profile" 
+         />
            </div>
-           <div>
-             <h4 className="profile-name mb-0">{employeeData?.name || "Loading..."}</h4>
-             <span className="profile-emp-id">EMP ID: {employeeData?.id || "EMP_..."}</span>
-           </div>
+            <div>
+              <h4 className="profile-name mb-0">{employeeData?.name || "Loading..."}</h4>
+              <span className="profile-emp-id">EMP ID: {employeeData?.employeeId || "..."}</span>
+            </div>
         </div>
 
         {/* Form Body directly scrollable */}
@@ -279,7 +338,7 @@ const EditEmployee = () => {
                             disabled={!editJobDetails} sx={getTextFieldStyle(!editJobDetails)}
                           >
                             <MenuItem disabled value=""><em>Select department</em></MenuItem>
-                            {["Marketing", "Sales", "Finance", "HR", "IT", "Operations"].map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                            {departments.map(opt => <MenuItem key={opt.id} value={opt.departmentName}>{opt.departmentName}</MenuItem>)}
                           </TextField>
                         )}
                       />
@@ -295,7 +354,7 @@ const EditEmployee = () => {
                             disabled={!editJobDetails} sx={getTextFieldStyle(!editJobDetails)}
                           >
                             <MenuItem disabled value=""><em>Select designation</em></MenuItem>
-                            {["Manager", "Representative", "Analyst", "Developer", "Specialist"].map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                            {designations.map(opt => <MenuItem key={opt.id} value={opt.designationName}>{opt.designationName}</MenuItem>)}
                           </TextField>
                         )}
                       />
@@ -312,7 +371,11 @@ const EditEmployee = () => {
                             disabled={!editJobDetails} sx={getTextFieldStyle(!editJobDetails)}
                           >
                             <MenuItem disabled value=""><em>Select manager</em></MenuItem>
-                            {["Alice Smith", "Mark Johnson", "Sarah Connor", "John Doe"].map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
+                            {managerOptions.map((manager) => (
+                              <MenuItem key={manager.id} value={manager.id}>
+                                {manager.label}
+                              </MenuItem>
+                            ))}
                           </TextField>
                         )}
                       />
@@ -336,14 +399,8 @@ const EditEmployee = () => {
                       fullWidth size="small" placeholder="Enter employee ID"
                       {...register("employeeId", { required: "Employee ID is required" })}
                       error={!!errors.employeeId} helperText={errors.employeeId?.message}
-                      disabled={true} 
-                      sx={{
-                        ...getTextFieldStyle(true),
-                        "& .MuiOutlinedInput-root": {
-                          ...getTextFieldStyle(true)["& .MuiOutlinedInput-root"],
-                          backgroundColor: "#F7F7F7 !important"
-                        }
-                      }}
+                      disabled={!editJobDetails} 
+                      sx={getTextFieldStyle(!editJobDetails)}
                     />
                   </div>
                   <div className="col-md-6">
@@ -436,8 +493,9 @@ const EditEmployee = () => {
                   </div>
 
                   {employeeData?.idProofs?.map((docObj, idx) => {
-                    const docKey = Object.keys(docObj)[0];
-                    const docFile = docObj[docKey];
+                     const docKey = docObj.name;
+                     const docFile =
+                     docObj.file?.name || docObj.file || "";
                     return (
                       <div key={`idproof-${idx}`} className="document-list-item d-flex align-items-center justify-content-between p-3 border rounded shadow-sm bg-white">
                          <div className="d-flex align-items-center gap-3">

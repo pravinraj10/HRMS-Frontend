@@ -1,0 +1,163 @@
+.text-role-name {
+  color: #212121 !important;
+}
+
+.col-roles-name-header {
+  color: #ffffff !important;
+}
+
+.custom-primary-btn {
+  background-color: #0d6efd !important;
+  border-color: #0d6efd !important;
+  color: #ffffff !important;
+  padding: 0.625rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.custom-primary-btn:hover {
+  background-color: #0b5ed7 !important;
+  border-color: #0b5ed7 !important;
+  color: #ffffff !important;
+}
+
+.custom-primary-btn svg {
+  color: #ffffff !important;
+}
+
+.title-custom {
+  font-size: 1.5rem;
+}
+
+.breadcrumb-custom {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.breadcrumb-custom span {
+  color: #4b5563;
+}
+
+.status-badge-style {
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  min-width: 100px;
+  height: 32px;
+}
+
+.status-badge-active {
+  background-color: #06a84d;
+}
+
+.status-badge-inactive {
+  background-color: #e3b80c;
+}
+
+.action-icons-container {
+  gap: 1rem;
+}
+
+.action-icon {
+  cursor: pointer;
+  width: 1.125rem;
+  height: 1.125rem;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.action-icon:active {
+  transform: scale(0.9);
+}
+
+.icon-view {
+  color: #136dec;
+}
+
+.icon-edit {
+  color: #f5c842;
+}
+
+.icon-delete {
+  color: #ef4444;
+}
+
+.ios-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.ios-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.ios-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #9ca3af;
+  transition: 0.4s;
+  border-radius: 24px;
+}
+
+.ios-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.ios-toggle input:checked + .ios-slider {
+  background-color: #34c759;
+}
+
+.ios-toggle input:checked + .ios-slider:before {
+  transform: translateX(20px);
+}
+
+.view-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.detail-value {
+  font-size: 15px;
+  color: #1e293b;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.view-close-btn {
+  border-radius: 8px;
+  padding: 8px 20px;
+  background-color: #64748b;
+  border: none;
+  color: #ffffff;
+}
