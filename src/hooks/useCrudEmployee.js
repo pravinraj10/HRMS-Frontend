@@ -78,28 +78,37 @@ const mapEmployeeData = (emp) => {
   }, [fetchEmployees]);
 
   // CREATE
-  const create = useCallback(async (payload) => {
-    try {
-      await api.post(API_ENDPOINT, payload, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      await fetchEmployees();
+const create = useCallback(async (formData) => {
+  try {
+    await api.post(API_ENDPOINT, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
-      return { success: true };
-    } catch (err) {
-      console.error("Create Error:", err);
-      return {
-        success: false,
-        message:
-          err?.response?.data?.message ||
-          err?.response?.data?.title ||
-          err?.response?.data ||
-          "Failed to save employee.",
-      };
+    await fetchEmployees();
+
+    return { success: true };
+
+  } catch (err) {
+    console.error("Create Error:", err);
+
+    // OPTIONAL: better error extraction
+    const errors = err?.response?.data?.errors;
+    if (errors) {
+      const firstError = Object.values(errors)[0][0];
+      return { success: false, message: firstError };
     }
-  }, [fetchEmployees]);
+
+    return {
+      success: false,
+      message:
+        err?.response?.data?.message ||
+        err?.response?.data?.title ||
+        "Failed to save employee.",
+    };
+  }
+}, [fetchEmployees]);
 
   // UPDATE
  const update = useCallback(async (id, payload) => {
