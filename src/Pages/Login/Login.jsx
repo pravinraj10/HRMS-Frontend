@@ -1,4 +1,5 @@
 import loginImg from "../../asset/image/loginImg.png";
+import api from "../../api/api";
 import "./Login.css";
 import TextField from '@mui/material/TextField';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -59,10 +60,34 @@ const Login = () => {
         }
     }, []);
 
-    const onSubmit = (data) => {
-        console.log("Login Data:", data);
-        navigate('/dashboard');
-    };
+  const onSubmit = async (data) => {
+  try {
+    const response = await api.post("/login", {
+      username: data.email,
+      password: data.password
+    });
+
+    console.log("Login Success:", response.data);
+
+    // ✅ Store token
+    localStorage.setItem("token", response.data.token);
+
+    // ✅ Redirect
+    navigate("/dashboard");
+
+  } catch (error) {
+    console.error("Login Failed:", error.response?.data || error.message);
+    alert("Invalid email or password");
+  }
+};
+const fetchEmployees = async () => {
+  try {
+    const res = await api.get("/employee"); // 🔐 protected endpoint
+    console.log(res.data);
+  } catch (err) {
+    console.error(err);
+  }
+};
     const onSendEmail = (data) => {
         const params = new URLSearchParams(location.search);
         params.set("email", data.email);
@@ -153,6 +178,9 @@ const Login = () => {
                                     <div className="mt-2">
                                         <button type="submit" className="btn btn-primary w-100 loginBtn">Login <ArrowForwardIosIcon sx={{ fontSize: 13 }} /></button>
                                     </div>
+                                    {/* <div className="mt-4 text-center" style={{ fontSize: '12px', color: '#757575', fontWeight: 500 }}>
+                                        Are you a Newbie? <span style={{ color: '#000', cursor: 'pointer', fontWeight: 'bold' }} onClick={() => navigate('/signup')}>GET STARTED - IT'S FREE</span>
+                                    </div> */}
                                 </form>
                             </div>
                         }

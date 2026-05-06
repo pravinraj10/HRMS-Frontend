@@ -109,6 +109,8 @@ const AddEmployee = () => {
       formData.append("PersonalEmail", data.email || "");
       formData.append("PersonalPhone", data.phone || "");
       formData.append("EmergencyContact", data.emergencyContact || "");
+      formData.append("Password", data.password || "");
+      formData.append("ConfirmPassword", data.confirmPassword || "");
       formData.append("Address", data.address || "");
 
       formData.append("DepartmentId", String(data.department || ""));
@@ -295,6 +297,39 @@ const AddEmployee = () => {
                     onInput={(e) => e.target.value = e.target.value.replace(/[^0-9]/g, "").slice(0, 10)}
                     error={!!errors.emergencyContact}
                     helperText={errors.emergencyContact?.message}
+                    sx={textFieldStyle}
+                  />
+                </div>
+
+                <div className="col-md-6">
+                  <label className="form-label-custom">Password</label>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="password"
+                    placeholder="Enter password"
+                    {...register("password", { 
+                      required: "Password is required",
+                      minLength: { value: 6, message: "Minimum 6 characters required" }
+                    })}
+                    error={!!errors.password}
+                    helperText={errors.password?.message}
+                    sx={textFieldStyle}
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label-custom">Confirm Password</label>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="password"
+                    placeholder="Confirm password"
+                    {...register("confirmPassword", { 
+                      required: "Confirm password is required",
+                      validate: (value, formValues) => value === formValues.password || "Passwords do not match"
+                    })}
+                    error={!!errors.confirmPassword}
+                    helperText={errors.confirmPassword?.message}
                     sx={textFieldStyle}
                   />
                 </div>
