@@ -101,17 +101,39 @@ const EmployeeList = () => {
     setDeleteItem(null);
   };
 
-  const handleToggleStatus = async (row) => {
-    // Clear status filter so the row stays visible after its status changes
-    setFilters((prev) => ({ ...prev, status: "" }));
-    const res = await toggleStatus(row.id, row.status);
-    if (res.success) {
-      const newStatus = row.status === "Active" ? "Inactive" : "Active";
-      showPopup("Success!", `Employee status updated to ${newStatus} successfully!`);
-    } else {
-      showPopup("Error!", "Failed to update employee status.", "error");
-    }
-  };
+const handleToggleStatus = async (id) => {
+  setFilters((prev) => ({
+    ...prev,
+    status: "",
+  }));
+
+  const employee = employees.find(
+    (emp) => emp.id === id
+  );
+
+  const oldStatus = employee?.status;
+
+  const res = await toggleStatus(id);
+
+  if (res.success) {
+    const newStatus =
+      oldStatus === "Active"
+        ? "Inactive"
+        : "Active";
+
+    showPopup(
+      "Success!",
+      `Employee status updated to ${newStatus} successfully!`
+    );
+  } else {
+    showPopup(
+      "Error!",
+      "Failed to update employee status.",
+      "error"
+    );
+  }
+};
+
 
   const columns = [
     { key: "employeeId", label: "Employee ID", className: "emp-id-td" },
@@ -153,7 +175,7 @@ const EmployeeList = () => {
             <input
               type="checkbox"
               checked={row.status === "Active"}
-              onChange={() => handleToggleStatus(row)}
+              onChange={() => handleToggleStatus(row.id)}
             />
             <span className="ios-slider"></span>
           </label>

@@ -5,9 +5,19 @@
   border-top: 1px solid #E6E9EF;
   transition: width 0.3s ease, padding 0.3s ease;
   padding: 16px;
-  overflow-y: auto;
   flex-shrink: 0;
   width: 240px;
+}
+
+.sidebar-menu::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-menu::-webkit-scrollbar-thumb {
+  background: #E6E9EF;
+  border-radius: 4px;
+}
+.sidebar-menu::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .sidebar.collapsed {

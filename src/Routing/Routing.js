@@ -3,7 +3,6 @@ import Login from "../Pages/Login/Login";
 import Dashboard from "../Pages/Dashboard/Dashboard";
 import MainLayout from "../Layout/MainLayout";
 import PrivateRoute from "./PrivateRoute";
-
 import Profile from "../Pages/Settings/Profile/Profile";
 import Security from "../Pages/Settings/Security/Security";
 import AddUser from "../Pages/Users/AddUser/AddUser";
@@ -42,7 +41,6 @@ const Routing = () => {
           }
         >
           <Route path="dashboard" element={<Dashboard />} />
-
           <Route path="settings/profile" element={<Profile />} />
           <Route path="settings/security" element={<Security />} />
           <Route path="settings/general" element={<General />} />
@@ -50,18 +48,14 @@ const Routing = () => {
           <Route path="settings/holidays" element={<Holiday />} />
           <Route path="settings/department" element={<Department />} />
           <Route path="settings/designation" element={<Designation />} />
-
           <Route path="employee/list" element={<EmployeeList />} />
           <Route path="employee/add" element={<AddEmployee />} />
           <Route path="employee/edit/:id" element={<EditEmployee />} />
           <Route path="employee/view/:id" element={<ViewEmployee />} />
           <Route path="employee/documents/:id" element={<EmployeeDocuments />} />
-
           <Route path="employee/status" element={<StatusHistory />} />
           <Route path="employee/status/view/:id" element={<ViewStatusHistory />} />
-
           <Route path="users/add" element={<AddUser />} />
-
           <Route path="configuration/business" element={<Business />} />
         </Route>
 
