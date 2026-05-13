@@ -15,9 +15,6 @@ import checkEmailImg from "../../asset/image/checkEmailImg.png"
 const Login = () => {
     const navigate = useNavigate();
     const location = useLocation();
-
-
-
     //login page
     const {
         register,
@@ -49,19 +46,23 @@ const Login = () => {
     const [showPasswordResetConfirm, setShowPasswordResetConfirm] = useState(false);
     const [activePage, setActivePage] = useState('login');
 
-    useEffect(() => {
-        const params = new URLSearchParams(location.search);
+  useEffect(() => {
 
-        const page = params.get("page");
-        const email = params.get("email");
+    const params = new URLSearchParams(location.search);
 
-        if (page === "resetPassword" && email) {
-            setActivePage("resetPassword");
-        }
-    }, []);
+    const page = params.get("page");
 
-  const onSubmit = async (data) => {
+    const token = params.get("token");
+
+    if (page === "resetPassword" && token) {
+        setActivePage("resetPassword");
+    }
+
+}, [location]);
+
+const onSubmit = async (data) => {
   try {
+
     const response = await api.post("/login", {
       username: data.email,
       password: data.password
@@ -69,14 +70,29 @@ const Login = () => {
 
     console.log("Login Success:", response.data);
 
-    // ✅ Store token
+    // STORE TOKEN
     localStorage.setItem("token", response.data.token);
 
-    // ✅ Redirect
+    // STORE USER DETAILS
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        fullName: response.data.fullName,
+        email: response.data.email,
+        profilePhoto: response.data.profilePhoto,
+      })
+    );
+
+    // REDIRECT
     navigate("/dashboard");
 
   } catch (error) {
-    console.error("Login Failed:", error.response?.data || error.message);
+
+    console.error(
+      "Login Failed:",
+      error.response?.data || error.message
+    );
+
     alert("Invalid email or password");
   }
 };
@@ -88,27 +104,61 @@ const fetchEmployees = async () => {
     console.error(err);
   }
 };
-    const onSendEmail = (data) => {
-        const params = new URLSearchParams(location.search);
-        params.set("email", data.email);
-        params.set("page", "resetPassword");
-        const resetPasswordUrl = `${window.location.origin}${location.pathname}?${params.toString()}`;
-        window.open(resetPasswordUrl)
-        console.log('resetpassowrdURL', resetPasswordUrl);
-        setActivePage('checkEmail');
-    };
+    const onSendEmail = async (data) => {
+
+    try {
+
+        await api.post("/login/forgot-password", {
+            email: data.email
+        });
+
+        setActivePage("checkEmail");
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            error.response?.data?.message ||
+            "Failed to send reset email"
+        );
+    }
+};
     const onCLickBackToLogin = (activePage) => {
         reset();
         resetForgetPassword();
         resetResetPassword();
-        if (activePage == 'resetSuccessfully') {
+        if (activePage === 'resetSuccessfully') {
             navigate('/login');
         }
         setActivePage('login');
     }
-    const onCLickResetPassword = (data) => {
-        setActivePage('resetSuccessfully');
+   const onCLickResetPassword = async (data) => {
+
+    try {
+
+        const params = new URLSearchParams(location.search);
+
+        const token = params.get("token");
+
+        await api.post("/login/reset-password", {
+            token,
+            password: data.password,
+            confirmPassword: data.confirmedPassword
+        });
+
+        setActivePage("resetSuccessfully");
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            error.response?.data?.message ||
+            "Password reset failed"
+        );
     }
+};
     return (
         <div className="app-container overflow-hidden">
             <div className="row min-vh-100">
@@ -117,7 +167,7 @@ const fetchEmployees = async () => {
                         <div>
                             <img src={dtgLogoImg} alt="DTG-Logo" style={{ width: '55%' }} />
                         </div>
-                        {activePage == 'login' &&
+                        {activePage === 'login' &&
                             <div>
                                 <div className="welcomeBackTxt mt-2">
                                     WELCOME BACK 👋🏻
@@ -169,11 +219,11 @@ const fetchEmployees = async () => {
                                             }}
                                         />
                                     </div>
-                                    {/* <div className="text-end forgetTxt mt-2" onClick={() => setActivePage('forget')}>
+                                    <div className="text-end forgetTxt mt-2" onClick={() => setActivePage('forget')}>
                                         <a className="font-bold underline" style={{ color: 'black' }}>
                                             Forget Password?
                                         </a>
-                                    </div> */}
+                                    </div>
 
                                     <div className="mt-2">
                                         <button type="submit" className="btn btn-primary w-100 loginBtn">Login <ArrowForwardIosIcon sx={{ fontSize: 13 }} /></button>
@@ -184,7 +234,7 @@ const fetchEmployees = async () => {
                                 </form>
                             </div>
                         }
-                        {activePage == 'forget' &&
+                        {activePage === 'forget' &&
                             <div>
                                 <div className="continueTxt">Forget Password</div>
                                 <div className="welcomeBackTxt">
@@ -219,7 +269,7 @@ const fetchEmployees = async () => {
                                 </div>
                             </div>
                         }
-                        {activePage == 'checkEmail' &&
+                        {activePage === 'checkEmail' &&
                             <div>
                                 <div className="mt-4 text-center">
                                     <img src={checkEmailImg} alt="checkemail" />
@@ -234,7 +284,7 @@ const fetchEmployees = async () => {
                                 </div>
                             </div>
                         }
-                        {activePage == 'resetPassword' &&
+                        {activePage === 'resetPassword' &&
                             <div>
                                 <div className="mt-3 continueTxt">Create Your Password</div>
                                 <div className="welcomeBackTxt">
@@ -306,7 +356,7 @@ const fetchEmployees = async () => {
 
                             </div>
                         }
-                        {activePage == 'resetSuccessfully' &&
+                        {activePage === 'resetSuccessfully' &&
                             <div>
                                 <div className="mt-4 text-center">
                                     <img src={checkEmailImg} alt="checkemail" />

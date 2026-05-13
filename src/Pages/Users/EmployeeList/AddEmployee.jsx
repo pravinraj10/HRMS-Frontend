@@ -5,6 +5,9 @@ import { useForm, Controller } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import { BiExport } from "react-icons/bi";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useCrudEmployee } from "../../../hooks/useCrudEmployee";
 import ReusablePopup from "../../../Reusbale/ReusablePopup";
 import api from "../../../api/api";
@@ -26,6 +29,8 @@ const AddEmployee = () => {
   const [departments, setDepartments] = useState([]);
   const [designations, setDesignations] = useState([]);
   const [managerOptions, setManagerOptions] = useState([]);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { create } = useCrudEmployee();
  useEffect(() => {
   const fetchRoles = async () => {
@@ -306,7 +311,7 @@ const AddEmployee = () => {
                   <TextField
                     fullWidth
                     size="small"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="Enter password"
                     {...register("password", { 
                       required: "Password is required",
@@ -315,6 +320,18 @@ const AddEmployee = () => {
                     error={!!errors.password}
                     helperText={errors.password?.message}
                     sx={textFieldStyle}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                          >
+                            {showPassword ? <FiEyeOff /> : <FiEye />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </div>
                 <div className="col-md-6">
@@ -322,7 +339,7 @@ const AddEmployee = () => {
                   <TextField
                     fullWidth
                     size="small"
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm password"
                     {...register("confirmPassword", { 
                       required: "Confirm password is required",
@@ -331,6 +348,18 @@ const AddEmployee = () => {
                     error={!!errors.confirmPassword}
                     helperText={errors.confirmPassword?.message}
                     sx={textFieldStyle}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            edge="end"
+                          >
+                            {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </div>
 

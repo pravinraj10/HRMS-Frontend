@@ -45,7 +45,12 @@ const mapEmployeeData = (emp) => {
     profilePhoto: emp.profilePhoto || "",
 
     // Map isActive boolean to status string
-    status: emp.isActive === true ? "Active" : "Inactive",
+   status:
+  emp.isActive === true ||
+  emp.isActive === 1 ||
+  emp.isActive === "1"
+    ? "Active"
+    : "Inactive",
 
     idProofs: proof
       ? [{ "ID Proof": proof }]
@@ -111,36 +116,68 @@ const create = useCallback(async (formData) => {
 }, [fetchEmployees]);
 
   // UPDATE
- const update = useCallback(async (id, payload) => {
+const update = useCallback(async (id, payload) => {
   try {
-
     const formData = new FormData();
 
-    formData.append("FullName", payload.name || "");
+    formData.append("FullName", payload.fullName || "");
     formData.append("Gender", payload.gender || "");
-    formData.append("DateOfBirth", payload.dob || "");
+    formData.append("DateOfBirth", payload.dateOfBirth || "");
 
-    formData.append("PersonalEmail", payload.email || "");
-    formData.append("PersonalPhone", payload.phone || "");
-    formData.append("EmergencyContact", payload.emergencyContact || "");
-    formData.append("Address", payload.address || "");
+    formData.append("PersonalEmail", payload.personalEmail || "");
+    formData.append("PersonalPhone", payload.personalPhone || "");
 
-    formData.append("DepartmentId", payload.departmentId || "");
-    formData.append("DesignationId", payload.designationId || "");
     formData.append(
-      "ReportingManagerId",
-      payload.reportingManagerId || payload.manager || ""
+      "EmergencyContact",
+      payload.emergencyContact || ""
     );
 
-    formData.append("JoiningDate", payload.joiningDate || "");
-    formData.append("EmployeeCode", payload.employeeId || "");
+    formData.append("Address", payload.address || "");
+
+    formData.append(
+      "DepartmentId",
+      payload.departmentId || ""
+    );
+
+    formData.append(
+      "DesignationId",
+      payload.designationId || ""
+    );
+
+    formData.append(
+      "ReportingManagerId",
+      payload.reportingManagerId || ""
+    );
+
+    formData.append(
+      "JoiningDate",
+      payload.joiningDate || ""
+    );
+
+    formData.append(
+      "EmployeeCode",
+      payload.employeeCode || ""
+    );
+
     formData.append("Shift", payload.shift || "");
 
-    // FILES
+    // PASSWORD
+    formData.append("Password", payload.password || "");
+
+    formData.append(
+      "ConfirmPassword",
+      payload.confirmPassword || ""
+    );
+
+    // PROFILE PHOTO
     if (payload.profilePhoto instanceof File) {
-      formData.append("ProfilePhoto", payload.profilePhoto);
+      formData.append(
+        "ProfilePhoto",
+        payload.profilePhoto
+      );
     }
 
+    // ID PROOF
     if (
       payload.idProofs?.length &&
       payload.idProofs[0].file instanceof File
@@ -155,22 +192,28 @@ const create = useCallback(async (formData) => {
       `${API_ENDPOINT}/${id}`,
       formData,
       {
-        headers:{
-          "Content-Type":"multipart/form-data"
-        }
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       }
     );
 
     await fetchEmployees();
 
-    return { success:true };
+    return { success: true };
 
-  } catch(err){
-    console.error("Update Error:",err);
-    return { success:false };
+  } catch (err) {
+    console.error("Update Error:", err);
+
+    return {
+      success: false,
+      message:
+        err?.response?.data?.title ||
+        err?.response?.data?.message ||
+        "Failed to update employee.",
+    };
   }
-
-},[fetchEmployees]);
+}, [fetchEmployees]);
 
   // DELETE
   const remove = useCallback(async (id) => {
@@ -187,34 +230,42 @@ const create = useCallback(async (formData) => {
   }, [fetchEmployees]);
 
   // TOGGLE STATUS — calls PUT /Employee/set-active/{id}?isActive=true/false
-  const toggleStatus = useCallback(async (id, currentStatus) => {
-    const newIsActive = currentStatus !== "Active"; // flip the current status
-    try {
-      // Optimistic UI update
-      setEmployees(prev =>
-        prev.map(emp =>
-          emp.id === id
-            ? { ...emp, status: newIsActive ? "Active" : "Inactive" }
-            : emp
-        )
-      );
+const toggleStatus = useCallback(async (id) => {
+  try {
+    const employee = employees.find(emp => emp.id === id);
+    if (!employee) return { success: false };
 
-      await api.put(`${API_ENDPOINT}/set-active/${id}?isActive=${newIsActive}`);
+    const newStatus = employee.status === "Active" ? "Inactive" : "Active";
+    const isActive = newStatus === "Active";
 
-      return { success: true };
-    } catch (err) {
-      console.error("Toggle Status Error:", err);
-      // Revert on failure
-      setEmployees(prev =>
-        prev.map(emp =>
-          emp.id === id
-            ? { ...emp, status: currentStatus }
-            : emp
-        )
-      );
-      return { success: false };
-    }
-  }, []);
+    setEmployees(prev =>
+      prev.map(emp =>
+        emp.id === id ? { ...emp, status: newStatus } : emp
+      )
+    );
+
+    await api.put(
+      `${API_ENDPOINT}/set-active/${id}`,
+      null,
+      {
+        params: {
+          isActive: isActive,
+        },
+      }
+    );
+
+    await fetchEmployees();
+
+    return { success: true };
+
+  } catch (err) {
+    console.error("Toggle Status Error:", err);
+
+    await fetchEmployees();
+
+    return { success: false };
+  }
+}, [employees, fetchEmployees]);
 
   // SEARCH
   const searchEmployees = useCallback(async (query) => {
