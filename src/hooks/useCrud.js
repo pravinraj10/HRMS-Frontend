@@ -69,19 +69,36 @@ export const useCrud = () => {
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [cRes, sRes, ciRes, dRes, rRes] = await Promise.all([
+      const [cRes, sRes, ciRes, dRes, rRes] = await Promise.allSettled([
         api.get("/Country"),
         api.get("/State"),
         api.get("/City"),
         api.get("/Department"),
         api.get("/Role"),
       ]);
+      const countryData =
+        cRes.status === "fulfilled"
+          ? getArray(cRes.value.data).map(mapCountry)
+          : [];
+      const stateData =
+        sRes.status === "fulfilled"
+          ? getArray(sRes.value.data).map(mapState)
+          : [];
 
-      const countryData = getArray(cRes.data).map(mapCountry);
-      const stateData = getArray(sRes.data).map(mapState);
-      const cityData = getArray(ciRes.data).map(mapCity);
-      const departmentData = getArray(dRes.data).map(mapDepartment);
-      const roleData = getArray(rRes.data).map(mapRole);
+      const cityData =
+        ciRes.status === "fulfilled"
+          ? getArray(ciRes.value.data).map(mapCity)
+          : [];
+
+      const departmentData =
+        dRes.status === "fulfilled"
+          ? getArray(dRes.value.data).map(mapDepartment)
+          : [];
+
+      const roleData =
+        rRes.status === "fulfilled"
+          ? getArray(rRes.value.data).map(mapRole)
+          : [];
 
       setCountries(countryData);
       setDisplayedCountries(countryData);
@@ -134,11 +151,12 @@ export const useCrud = () => {
 
       if (endpoint === "roles") {
         await api.post("/Role", {
-          roleName: data.name,
-          departmentId: data.departmentId || null,
-          roleType: data.type || "",
+          roleName: data.roleName,
+
           description: data.description || "",
-          isActive: true,
+
+          sideMenu: data.sideMenu || "",
+
           createdBy: "Admin",
         });
       }
@@ -184,11 +202,13 @@ export const useCrud = () => {
       if (endpoint === "roles") {
         await api.put("/Role", {
           id: id,
+
           roleName: data.name,
-          departmentId: data.departmentId || null,
-          roleType: data.type || "",
+
           description: data.description || "",
-          isActive: data.status === "Active",
+
+          sideMenu: data.sideMenu || "",
+
           updatedBy: "Admin",
         });
       }
@@ -323,6 +343,6 @@ export const useCrud = () => {
       } finally {
         setLoading(false);
       }
-    }
+    },
   };
 };

@@ -7,13 +7,14 @@ import ReusableConfirm from "../../../Reusbale/ReusableConfirm";
 import ReusablePopup from "../../../Reusbale/ReusablePopup";
 import ResuableForm from "../../../Reusbale/ReusableForm";
 import { useCrud } from "../../../hooks/useCrud";
-import api from "../../../api/api";
 import { useForm } from "react-hook-form";
 import TextField from "@mui/material/TextField";
+import { useNavigate } from "react-router-dom";
 import "./Roles.css";
 
 
 const Roles = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterValues, setFilterValues] = useState({
     department: "",
@@ -23,7 +24,6 @@ const Roles = () => {
 
   const [visibleCount, setVisibleCount] = useState(10);
   const [isFetching, setIsFetching] = useState(false);
-  const [assignedUserCountsByRoleId, setAssignedUserCountsByRoleId] = useState({});
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -56,82 +56,6 @@ const Roles = () => {
       .trim()
       .toLowerCase();
 
-  const fetchAssignedUsersCount = async () => {
-    try {
-      const response = await api.get("/Employee");
-
-      const employees = Array.isArray(response.data)
-        ? response.data
-        : response.data?.$values || [];
-
-      const roleCounts = {};
-      const roleNameToId = {};
-      (roles || []).forEach((role) => {
-        if (role?.name) {
-          roleNameToId[normalizeKey(role.name)] = role.id;
-        }
-      });
-
-      employees.forEach((emp) => {
-        const roleId =
-          emp.reportingManagerId ??
-          emp.reportingManager ??
-          emp.reportingManagerID;
-
-        if (roleId !== null && roleId !== undefined && roleId !== "") {
-          roleCounts[roleId] = (roleCounts[roleId] || 0) + 1;
-          return;
-        }
-
-        // Backward compatibility: older records may only have manager name text.
-        const managerName =
-          emp.reportingManagerName ||
-          emp.roleName ||
-          emp.manager ||
-          emp.reportingManagerLabel ||
-          "";
-        const mappedRoleId = roleNameToId[normalizeKey(managerName)];
-        if (mappedRoleId !== null && mappedRoleId !== undefined) {
-          roleCounts[mappedRoleId] = (roleCounts[mappedRoleId] || 0) + 1;
-        }
-      });
-
-      setAssignedUserCountsByRoleId(roleCounts);
-    } catch (error) {
-      console.error("Assigned user count error:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchAssignedUsersCount();
-  }, [roles.length, displayedRoles.length]);
-
-  useEffect(() => {
-    const handleWindowFocus = () => fetchAssignedUsersCount();
-    const handleVisibility = () => {
-      if (document.visibilityState === "visible") {
-        fetchAssignedUsersCount();
-      }
-    };
-
-    window.addEventListener("focus", handleWindowFocus);
-    document.addEventListener("visibilitychange", handleVisibility);
-
-    // Keep counts fresh if assignments are changed in another tab/window.
-    const intervalId = setInterval(fetchAssignedUsersCount, 30000);
-
-    return () => {
-      window.removeEventListener("focus", handleWindowFocus);
-      document.removeEventListener("visibilitychange", handleVisibility);
-      clearInterval(intervalId);
-    };
-  }, []);
-
-  const getAssignedUsersCount = (row) => {
-    return assignedUserCountsByRoleId[row.id] || 0;
-  };
-
-
   const showPopup = (title, message, type = "success") => {
     setPopupState({ isOpen: true, title, message, type });
   };
@@ -163,14 +87,7 @@ const Roles = () => {
   };
 
   const handleEdit = (row) => {
-    setValue("name", row.name);
-    setValue("department", row.department);
-    setValue("departmentId", row.departmentId);
-    setValue("type", row.type);
-    setValue("description", row.description);
-    setValue("status", row.status);
-    setEditingId(row.id);
-    setIsModalOpen(true);
+    navigate(`/settings/roles/edit/${row.id}`);
   };
 
   const handleDelete = (row) => {
@@ -181,14 +98,29 @@ const Roles = () => {
   const handleConfirmDelete = async () => {
     if (!deleteItem) return;
 
+    setIsConfirmOpen(false);
+
     try {
+      // The API already returns assignedUsers count on each role (mapped to .users)
+      const assignedCount = deleteItem.users ?? 0;
+
+      if (assignedCount > 0) {
+        showPopup(
+          "Cannot Delete Role",
+          `"${deleteItem.name}" cannot be deleted because ${assignedCount} employee${assignedCount > 1 ? "s are" : " is"} assigned to this role. Please reassign them first.`,
+          "error"
+        );
+        setDeleteItem(null);
+        return;
+      }
+
+      // No employees assigned — safe to delete
       await remove("roles", deleteItem);
-      showPopup("Success!", "Role deleted successfully!", "success");
+      showPopup("Success!", `Role "${deleteItem.name}" deleted successfully!`, "success");
     } catch (error) {
       console.error("Delete error:", error);
       showPopup("Error!", "Failed to delete role. Please try again.", "error");
     } finally {
-      setIsConfirmOpen(false);
       setDeleteItem(null);
     }
   };
@@ -241,27 +173,10 @@ const Roles = () => {
     {
       key: "name",
       label: "Roles Name",
-      className: "fw-semibold text-role-name",
+      className: "fw-semibold text-role-name text-capitalize",
       headerClassName: "text-white",
     },
-    { key: "department", label: "Department", className: "text-secondary" },
     { key: "description", label: "Description", className: "text-secondary" },
-    {
-      key: "users",
-      label: "Assigned User",
-      className: "text-center",
-      render: (row) => {
-        const assignedUsersCount = getAssignedUsersCount(row);
-        return (
-          <span className="assigned-user-badge">
-            {assignedUsersCount}
-          <span className="assigned-user-label">
-              {assignedUsersCount === 1 ? " Employee" : " Employees"}
-            </span>
-          </span>
-        );
-      },
-    },
     {
       key: "status",
       label: "Status",
@@ -386,7 +301,7 @@ const Roles = () => {
             className="d-flex align-items-center gap-2"
             style={{ fontSize: "12px", color: "#94a3b8" }}
           >
-            <FiHome size={14} /> / Configuration /{" "}
+            <FiHome size={14} /> / Settings /{" "}
             <span className="fw-medium text-dark">Roles & Permission</span>
           </div>
         </div>
@@ -394,11 +309,7 @@ const Roles = () => {
         <button
           className="btn custom-primary-btn d-flex align-items-center justify-content-center gap-2 fw-medium border-0 px-4"
           style={{ height: "42px", borderRadius: "8px" }}
-          onClick={() => {
-            reset();
-            setEditingId(null);
-            setIsModalOpen(true);
-          }}
+          onClick={() => navigate("/settings/roles/add")}
         >
           <FiPlus /> Add Role
         </button>
@@ -421,7 +332,7 @@ const Roles = () => {
                 onChange={(val) => handleFilterChange("department", val)}
               />
             </div>
-            <div style={{ width: "160px" }}>
+            {/* <div style={{ width: "160px" }}>
               <ReusableDropdown
                 placeholder="All Types"
                 options={[
@@ -431,7 +342,7 @@ const Roles = () => {
                 value={filterValues.type}
                 onChange={(val) => handleFilterChange("type", val)}
               />
-            </div>
+            </div> */}
             <div style={{ width: "160px" }}>
               <ReusableDropdown
                 placeholder="All Status"
@@ -568,11 +479,6 @@ const Roles = () => {
             </div>
 
             <div className="detail-row">
-              <span className="detail-label">Department:</span>
-              <span className="detail-value">{viewingItem.department || "N/A"}</span>
-            </div>
-
-            <div className="detail-row">
               <span className="detail-label">Role Type:</span>
               <span className="detail-value">{viewingItem.type || "N/A"}</span>
             </div>
@@ -580,11 +486,6 @@ const Roles = () => {
             <div className="detail-row">
               <span className="detail-label">Description:</span>
               <span className="detail-value">{viewingItem.description || "N/A"}</span>
-            </div>
-
-            <div className="detail-row">
-              <span className="detail-label">Assigned User:</span>
-              <span className="detail-value">{getAssignedUsersCount(viewingItem)}</span>
             </div>
 
             <div className="detail-row">
@@ -609,7 +510,7 @@ const Roles = () => {
       <ReusableConfirm
         isOpen={isConfirmOpen}
         title="Confirm Deletion"
-        message={`Are you sure you want to delete ${deleteItem?.name || "this role"}?`}
+        message={`Are you sure you want to delete "${deleteItem?.name || "this role"}"?`}
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
       />

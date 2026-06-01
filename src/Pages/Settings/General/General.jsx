@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 import ReusablePopup from "../../../Reusbale/ReusablePopup";
 import ResuableForm from "../../../Reusbale/ReusableForm";
+import api from "../../../api/api";
 import "./General.css";
 
 const General = () => {
@@ -127,14 +128,61 @@ const General = () => {
 
   const handleConfirmDelete = async () => {
     if (!deleteItem) return;
-    const res = await remove(endpointMap[activeTab], deleteItem);
-    if (res.success) {
-      showPopup("Success!", `${currentConfig.label} deleted successfully!`);
-    } else {
-      showPopup("Error!", `Failed to delete ${currentConfig.label}.`, "error");
-    }
+
     setIsConfirmOpen(false);
-    setDeleteItem(null);
+
+    try {
+      // 1. Fetch employees to check if any are assigned to this country/state/city
+      const empRes = await api.get("/Employee");
+      const getArray = (res) => {
+        if (Array.isArray(res)) return res;
+        if (res?.$values) return res.$values;
+        if (res?.data) return res.data;
+        return [];
+      };
+      const employees = getArray(empRes.data);
+
+      // 2. Count assigned employees based on the activeTab
+      let assignedCount = 0;
+      if (activeTab === "country") {
+        assignedCount = employees.filter(emp => String(emp.countryId) === String(deleteItem.id)).length;
+      } else if (activeTab === "state") {
+        assignedCount = employees.filter(emp => String(emp.stateId) === String(deleteItem.id)).length;
+      } else if (activeTab === "city") {
+        assignedCount = employees.filter(emp => String(emp.cityId) === String(deleteItem.id)).length;
+      }
+
+      // 3. Block deletion and show error popup if assignedCount > 0
+      if (assignedCount > 0) {
+        showPopup(
+          "Cannot Delete",
+          `"${deleteItem.name}" cannot be deleted because ${assignedCount} employee${assignedCount > 1 ? "s are" : " is"} assigned to this ${currentConfig.label.toLowerCase()}. Please reassign them first.`,
+          "error"
+        );
+        setDeleteItem(null);
+        return;
+      }
+    } catch (err) {
+      console.error("Failed to check employee assignments", err);
+      showPopup("Error!", "Failed to verify employee assignments before deleting.", "error");
+      setDeleteItem(null);
+      return;
+    }
+
+    // 4. If no assignments, proceed to delete
+    try {
+      const res = await remove(endpointMap[activeTab], deleteItem);
+      if (res.success) {
+        showPopup("Success!", `${currentConfig.label} "${deleteItem.name}" deleted successfully!`);
+      } else {
+        showPopup("Error!", `Failed to delete ${currentConfig.label}.`, "error");
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      showPopup("Error!", `Failed to delete ${currentConfig.label}.`, "error");
+    } finally {
+      setDeleteItem(null);
+    }
   };
 
   const StatusBadge = ({ status }) => (
@@ -452,7 +500,7 @@ const General = () => {
           <div
             className="d-flex align-items-center gap-2 breadcrumb-container"
           >
-            <FiHome size={14} /> / Configuration /{" "}
+            <FiHome size={14} /> / Settings /{" "}
             <span className="fw-medium text-dark">{currentConfig.label}</span>
           </div>
         </div>

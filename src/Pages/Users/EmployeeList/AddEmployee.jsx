@@ -15,7 +15,13 @@ import "./AddEmployee.css";
 
 const AddEmployee = () => {
   const navigate = useNavigate();
-  const { register, handleSubmit, control, formState: { errors }, reset, watch, setValue } = useForm();
+  const { register, handleSubmit, control, formState: { errors }, reset, watch, setValue } = useForm({
+    defaultValues: {
+      countryId: "",
+      stateId: "",
+      cityId: "",
+    }
+  });
   const [loading, setLoading] = useState(false);
   const [idProofsList, setIdProofsList] = useState([]);
   const [documentName, setDocumentName] = useState("");
@@ -29,38 +35,132 @@ const AddEmployee = () => {
   const [departments, setDepartments] = useState([]);
   const [designations, setDesignations] = useState([]);
   const [managerOptions, setManagerOptions] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { create } = useCrudEmployee();
- useEffect(() => {
-  const fetchRoles = async () => {
-    try {
-      const res = await api.get("/Employee/dropdown");
 
-      const rolesData = Array.isArray(res.data)
-        ? res.data
-        : res.data?.$values || [];
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
 
-      const activeRoles = rolesData.map(role => ({
-        id: role.id,
-        label: role.roleName
-      }));
+  const watchCountryId = watch("countryId");
+  const watchStateId = watch("stateId");
 
-      setManagerOptions(activeRoles);
+  console.log("DEBUG AddEmployee:", {
+    watchCountryId,
+    typeOfCountryId: typeof watchCountryId,
+    watchStateId,
+    typeOfStateId: typeof watchStateId,
+    countriesCount: countries.length,
+    statesCount: states.length,
+    citiesCount: cities.length
+  });
 
-    } catch (error) {
-      console.error("Role fetch error:", error);
+  // Fetch Countries on Mount
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const res = await api.get("/Country");
+        const getArray = (res) => {
+          if (Array.isArray(res)) return res;
+          if (res?.$values) return res.$values;
+          if (res?.data) return res.data;
+          return [];
+        };
+        setCountries(getArray(res.data));
+      } catch (err) {
+        console.error("Failed to fetch countries", err);
+      }
+    };
+    fetchCountries();
+  }, []);
+
+  // Fetch States when Country changes
+  useEffect(() => {
+    if (!watchCountryId) {
+      setStates([]);
+      setValue("stateId", "");
+      setCities([]);
+      setValue("cityId", "");
+      return;
     }
-  };
 
-  fetchRoles();
-}, []);
+    const fetchStates = async () => {
+      try {
+        const res = await api.get(`/State/by-country/${watchCountryId}`);
+        const getArray = (res) => {
+          if (Array.isArray(res)) return res;
+          if (res?.$values) return res.$values;
+          if (res?.data) return res.data;
+          return [];
+        };
+        setStates(getArray(res.data));
+        setValue("stateId", "");
+        setCities([]);
+        setValue("cityId", "");
+      } catch (err) {
+        console.error("Failed to fetch states", err);
+      }
+    };
+    fetchStates();
+  }, [watchCountryId, setValue]);
+
+  // Fetch Cities when State changes
+  useEffect(() => {
+    if (!watchStateId || !watchCountryId) {
+      setCities([]);
+      setValue("cityId", "");
+      return;
+    }
+
+    const fetchCities = async () => {
+      try {
+        const res = await api.get(`/City/by-country-state?countryId=${watchCountryId}&stateId=${watchStateId}`);
+        const getArray = (res) => {
+          if (Array.isArray(res)) return res;
+          if (res?.$values) return res.$values;
+          if (res?.data) return res.data;
+          return [];
+        };
+        setCities(getArray(res.data));
+        setValue("cityId", "");
+      } catch (err) {
+        console.error("Failed to fetch cities", err);
+      }
+    };
+    fetchCities();
+  }, [watchStateId, watchCountryId, setValue]);
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const res = await api.get("/Employee/dropdown");
+
+        const rolesData = Array.isArray(res.data)
+          ? res.data
+          : res.data?.$values || [];
+
+        const activeRoles = rolesData.map(role => ({
+          id: role.id,
+          label: role.roleName
+        }));
+
+        setManagerOptions(activeRoles);
+
+      } catch (error) {
+        console.error("Role fetch error:", error);
+      }
+    };
+
+    fetchRoles();
+  }, []);
   useEffect(() => {
     const fetchDropdownData = async () => {
       try {
-        const [deptRes, desigRes] = await Promise.all([
+        const [deptRes, desigRes, roleRes] = await Promise.all([
           api.get("/Department"),
-          api.get("/Designation")
+          api.get("/Designation"),
+          api.get("/Role")
         ]);
         
         const getArray = (res) => {
@@ -72,6 +172,7 @@ const AddEmployee = () => {
 
         setDepartments(getArray(deptRes.data));
         setDesignations(getArray(desigRes.data));
+        setRoles(getArray(roleRes.data));
       } catch (err) {
         console.error("Failed to fetch dropdown data", err);
       }
@@ -117,13 +218,18 @@ const AddEmployee = () => {
       formData.append("Password", data.password || "");
       formData.append("ConfirmPassword", data.confirmPassword || "");
       formData.append("Address", data.address || "");
+      formData.append("CountryId", String(data.countryId || ""));
+      formData.append("StateId", String(data.stateId || ""));
+      formData.append("CityId", String(data.cityId || ""));
 
       formData.append("DepartmentId", String(data.department || ""));
       formData.append("DesignationId", String(data.designation || ""));
       if (data.joiningDate) formData.append("JoiningDate", data.joiningDate);
       formData.append("EmployeeCode", data.employeeId || "");
       formData.append("ReportingManagerId", String(data.manager || ""));
+      formData.append("RoleId", String(data.role || ""));
       formData.append("Shift", data.shift || "");
+      formData.append("OfficeEmail", data.officeEmail || "");
 
       if (profilePhotoFiles && profilePhotoFiles.length > 0) {
         formData.append("ProfilePhoto", profilePhotoFiles[0]);
@@ -153,22 +259,29 @@ const AddEmployee = () => {
     console.error("Validation Errors:", errors);
   };
 
-  const textFieldStyle = {
+  const getTextFieldStyle = (isDisabled) => ({
     "& .MuiOutlinedInput-root": {
       borderRadius: "6px",
-      "& fieldset": { borderColor: "#cbd5e1" },
-      "&:hover fieldset": { borderColor: "#136DEC" },
-      "&.Mui-focused fieldset": { borderColor: "#136DEC" },
-      background: "#ffffff",
+      backgroundColor: isDisabled ? "#FAFBFC" : "#ffffff",
+      "& fieldset": { borderColor: isDisabled ? "#E2E8F0" : "#cbd5e1" },
+      "&:hover fieldset": { borderColor: isDisabled ? "#E2E8F0" : "#136DEC" },
+      "&.Mui-focused fieldset": {
+        borderColor: isDisabled ? "#E2E8F0" : "#136DEC",
+      },
       fontSize: { xs: "13px", md: "14px" }
     },
-    "& .MuiInputBase-input": { color: "#475569" },
+    "& .MuiInputBase-input": {
+      color: isDisabled ? "#64748B" : "#475569",
+      "-webkit-text-fill-color": isDisabled ? "#64748B !important" : "initial",
+    },
     "& .MuiFormHelperText-root": { 
       fontSize: { xs: "11px", md: "12px" }, 
       marginLeft: "0px",
       marginTop: "4px"
     }
-  };
+  });
+
+  const textFieldStyle = getTextFieldStyle(false);
 
   return (
     <div className="add-employee-wrapper">
@@ -182,9 +295,9 @@ const AddEmployee = () => {
               <FiHome size={14} /> / <span className="text-muted">Employee Management</span> / <span className="fw-medium text-dark">Add Employee</span>
             </div>
           </div>
-          <button type="button" className="btn-export-top">
+          {/* <button type="button" className="btn-export-top">
             <BiExport size={16} /> Export <FiChevronDown size={14} />
-          </button>
+          </button> */}
         </div>
 
         {/* Scrollable Form Body */}
@@ -363,6 +476,119 @@ const AddEmployee = () => {
                   />
                 </div>
 
+                <div className="col-md-4">
+                  <label className="form-label-custom">Country</label>
+                  <Controller
+                    name="countryId"
+                    control={control}
+                    rules={{ required: "Country is required" }}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        select
+                        fullWidth
+                        size="small"
+                        error={!!errors.countryId}
+                        helperText={errors.countryId?.message}
+                        sx={textFieldStyle}
+                        SelectProps={{
+                          displayEmpty: true,
+                          renderValue: (value) => {
+                            const selected = countries.find(c => String(c.id) === String(value));
+                            return selected ? selected.countryName : <span style={{ color: "#9ca3af" }}>Select country</span>;
+                          }
+                        }}
+                      >
+                        <MenuItem disabled value="">
+                          Select country
+                        </MenuItem>
+                        {countries.map((c) => (
+                          <MenuItem key={c.id} value={c.id}>
+                            {c.countryName}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    )}
+                  />
+                </div>
+
+                <div className="col-md-4">
+                  <label className="form-label-custom">State</label>
+                  <Controller
+                    name="stateId"
+                    control={control}
+                    rules={{ required: "State is required" }}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        select
+                        fullWidth
+                        size="small"
+                        error={!!errors.stateId}
+                        helperText={errors.stateId?.message}
+                        sx={getTextFieldStyle(!watchCountryId)}
+                        disabled={!watchCountryId}
+                        SelectProps={{
+                          displayEmpty: true,
+                          renderValue: (value) => {
+                            const selected = states.find(s => String(s.id) === String(value));
+                            return selected ? selected.stateName : <span style={{ color: "#9ca3af" }}>Select state</span>;
+                          }
+                        }}
+                      >
+                        <MenuItem disabled value="">
+                          Select state
+                        </MenuItem>
+                        {states.map((s) => (
+                          <MenuItem key={s.id} value={s.id}>
+                            {s.stateName}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    )}
+                  />
+                </div>
+
+                <div className="col-md-4">
+                  <label className="form-label-custom">City</label>
+                  <Controller
+                    name="cityId"
+                    control={control}
+                    rules={{ required: "City is required" }}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        select
+                        fullWidth
+                        size="small"
+                        error={!!errors.cityId}
+                        helperText={errors.cityId?.message}
+                        sx={getTextFieldStyle(!watchStateId)}
+                        disabled={!watchStateId}
+                        SelectProps={{
+                          displayEmpty: true,
+                          renderValue: (value) => {
+                            const selected = cities.find(c => String(c.id) === String(value));
+                            return selected ? selected.cityName : <span style={{ color: "#9ca3af" }}>Select city</span>;
+                          }
+                        }}
+                      >
+                        <MenuItem disabled value="">
+                          Select city
+                        </MenuItem>
+                        {cities.map((c) => (
+                          <MenuItem key={c.id} value={c.id}>
+                            {c.cityName}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    )}
+                  />
+                </div>
+
                 <div className="col-md-12">
                   <label className="form-label-custom">Address</label>
                   <TextField
@@ -496,6 +722,33 @@ const AddEmployee = () => {
                     />
                 </div>
                 <div className="col-md-6">
+                  <label className="form-label-custom">Role</label>
+                  <Controller
+                      name="role"
+                      control={control}
+                      rules={{ required: `Role is required` }}
+                      defaultValue=""
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          select
+                          fullWidth
+                          size="small"
+                          error={!!errors.role}
+                          helperText={errors.role?.message}
+                          sx={textFieldStyle}
+                          SelectProps={{
+                            displayEmpty: true,
+                            renderValue: (value) => value ? roles.find(r => r.id === value)?.roleName || value : <span style={{ color: '#9ca3af' }}>Select role</span>
+                          }}
+                        >
+                          <MenuItem disabled value=""><em style={{ fontStyle: 'normal', color: '#9ca3af' }}>Select role</em></MenuItem>
+                          {roles.map(opt => <MenuItem key={opt.id} value={opt.id} sx={{ fontSize: { xs: "13px", md: "14px" } }}>{opt.roleName}</MenuItem>)}
+                        </TextField>
+                      )}
+                    />
+                </div>
+                <div className="col-md-6">
                   <label className="form-label-custom">Shift</label>
                   <Controller
                       name="shift"
@@ -521,6 +774,22 @@ const AddEmployee = () => {
                         </TextField>
                       )}
                     />
+                </div>
+
+                <div className="col-md-6">
+                  <label className="form-label-custom">Office Email</label>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    placeholder="Enter office email"
+                    {...register("officeEmail", { 
+                      required: "Office Email is required",
+                      pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Invalid email" }
+                    })}
+                    error={!!errors.officeEmail}
+                    helperText={errors.officeEmail?.message}
+                    sx={textFieldStyle}
+                  />
                 </div>
               </div>
 

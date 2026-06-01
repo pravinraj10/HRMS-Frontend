@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiHome, FiPlus, FiChevronDown, FiSearch, FiEye, FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiHome, FiPlus, FiChevronDown, FiEye, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { BiExport } from "react-icons/bi";
-
 import ReusableDropdown from "../../../Reusbale/ReusableDropdown";
 import ReusableSearch from "../../../Reusbale/ReusableSearch";
 import ReusableTable from "../../../Reusbale/ReusableTable";
@@ -22,6 +21,7 @@ const EmployeeList = () => {
   const navigate = useNavigate();
   const { employees, loading, searchLoading, remove, toggleStatus, search } = useCrudEmployee();
   const [searchTerm, setSearchTerm] = useState("");
+  const isFirstRender = useRef(true);
   const [filters, setFilters] = useState({
     department: "",
     role: "",
@@ -41,6 +41,59 @@ const EmployeeList = () => {
     message: "",
     type: "success",
   });
+
+  const [isExportOpen, setIsExportOpen] = useState(false);
+  const exportRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (exportRef.current && !exportRef.current.contains(event.target)) {
+        setIsExportOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleExportCSV = () => {
+    if (!filteredData || filteredData.length === 0) {
+      showPopup("Warning", "No data available to export.", "error");
+      return;
+    }
+
+    const headers = ["Employee ID", "Name", "Department", "Designation", "Email", "Phone", "Status"];
+
+    const rows = filteredData.map(emp => [
+      emp.employeeId || "",
+      emp.name || "",
+      emp.department || "",
+      emp.designation || "",
+      emp.email || "",
+      emp.phone || "",
+      emp.status || ""
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(value => {
+        const escaped = String(value).replace(/"/g, '""');
+        return `"${escaped}"`;
+      }).join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `employee_list_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setIsExportOpen(false);
+  };
 
   // Fetch filter dropdown data
   useEffect(() => {
@@ -67,14 +120,15 @@ const EmployeeList = () => {
     fetchDropdownData();
   }, []);
 
-  // Backend Search implementation
+  // Backend Search implementation — skip on initial mount to avoid double fetch
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
     const delayDebounceFn = setTimeout(() => {
-      if (searchTerm) {
-        search(searchTerm);
-      } else {
-        search(""); 
-      }
+      search(searchTerm);
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
@@ -223,15 +277,18 @@ const handleToggleStatus = async (id) => {
           </div>
         </div>
         <div className="employee-header-actions">
-          <button className="btn-emp btn-add-job">
-            <FiPlus size={16} /> Add Job Post
-          </button>
           <button className="btn-emp btn-add-employee" onClick={() => navigate('/employee/add')}>
             <FiPlus size={16} /> Add Employee
           </button>
-          <button type="button" className="btn-export-top">
-            <BiExport size={16} /> Export <FiChevronDown size={14} />
-          </button>
+          <div className="export-dropdown-container" ref={exportRef}>
+            <button 
+              type="button" 
+              className="btn-export-top"
+              onClick={handleExportCSV}
+            >
+              <BiExport size={16}  /> Export 
+            </button>
+          </div>
         </div>
       </div>
 
@@ -248,14 +305,14 @@ const handleToggleStatus = async (id) => {
                 onChange={(val) => handleFilterChange("department", val)}
               />
             </div>
-            <div className="filter-dropdown-wrapper">
+            {/* <div className="filter-dropdown-wrapper">
               <ReusableDropdown
                 placeholder="Role"
                 options={roles}
                 value={filters.role}
                 onChange={(val) => handleFilterChange("role", val)}
               />
-            </div>
+            </div> */}
             <div className="filter-dropdown-wrapper">
               <ReusableDropdown
                 placeholder="Status"

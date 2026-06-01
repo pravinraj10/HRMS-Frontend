@@ -2,7 +2,16 @@ import React from "react";
 import { FiAlertTriangle } from "react-icons/fi";
 import "./ReusableConfirm.css";
 
-const ReusableConfirm = ({ isOpen, title, message, onConfirm, onCancel }) => {
+const ReusableConfirm = ({ 
+  isOpen, 
+  title, 
+  message, 
+  onConfirm, 
+  onCancel,
+  confirmText = "Delete",
+  cancelText = "Cancel",
+  confirmBtnClass = "custom-delete-btn"
+}) => {
   if (!isOpen) return null;
 
   return (
@@ -20,10 +29,10 @@ const ReusableConfirm = ({ isOpen, title, message, onConfirm, onCancel }) => {
         
         <div className="d-flex justify-content-end gap-2 custom-actions">
           <button className="btn custom-cancel-btn" onClick={onCancel}>
-            Cancel
+            {cancelText}
           </button>
-          <button className="btn custom-delete-btn" onClick={onConfirm}>
-            Delete
+          <button className={`btn ${confirmBtnClass}`} onClick={onConfirm}>
+            {confirmText}
           </button>
         </div>
       </div>

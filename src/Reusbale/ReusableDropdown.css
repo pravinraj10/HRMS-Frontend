@@ -10,7 +10,7 @@
   color: #475569;
 }
 
-.rd-header:hover {
+.rd-header:not(.rd-disabled):hover {
   border-color: #1a56a6;
 }
 

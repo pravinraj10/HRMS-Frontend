@@ -227,14 +227,14 @@ const Department = () => {
               onChange={(val) => setDepartmentNameFilter(val)}
             />
           </div>
-          <div className="filter-item">
+          {/* <div className="filter-item">
              <ReusableDropdown
               placeholder="All Types"
               options={[]}
               value={""}
               onChange={() => {}}
             />
-          </div>
+          </div> */}
           <div className="filter-item">
             <ReusableDropdown
               placeholder="All Status"

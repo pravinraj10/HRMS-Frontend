@@ -5,15 +5,54 @@ import { BiExport } from "react-icons/bi";
 import { useNavigate, useParams } from "react-router-dom";
 import profileImg from "../../../asset/image/profile.jpg";
 import api from "../../../api/api";
+import ReusableConfirm from "../../../Reusbale/ReusableConfirm";
+import ReusablePopup from "../../../Reusbale/ReusablePopup";
 import "./ViewEmployee.css";
 
 const ViewEmployee = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("Personal Info");
-  
   const [employee, setEmployee] = useState(null);
-   const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [popupState, setPopupState] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "success",
+  });
+
+  const showPopup = (title, message, type = "success") => {
+    setPopupState({ isOpen: true, title, message, type });
+  };
+
+  const handleConfirmToggleActive = async () => {
+    setIsConfirmOpen(false);
+    const newActiveStatus = !employee.isActive;
+
+    try {
+      await api.put(`/Employee/set-active/${id}?isActive=${newActiveStatus}`);
+      
+      setEmployee(prev => ({
+        ...prev,
+        isActive: newActiveStatus
+      }));
+
+      showPopup(
+        "Success!",
+        `Employee "${employee.name}" has been ${newActiveStatus ? "activated" : "deactivated"} successfully.`,
+        "success"
+      );
+    } catch (error) {
+      console.error("Error setting active status:", error);
+      showPopup(
+        "Error!",
+        `Failed to ${newActiveStatus ? "activate" : "deactivate"} employee. Please try again.`,
+        "error"
+      );
+    }
+  };
 
 useEffect(() => {
   const fetchEmployee = async () => {
@@ -37,6 +76,7 @@ useEffect(() => {
           : "-",
 
         email: emp.personalEmail,
+        officeEmail: emp.officeEmail || "-",
         phone: emp.personalPhone,
 
         address: emp.address || "-",
@@ -49,6 +89,7 @@ useEffect(() => {
         shift: emp.shift,
 
         profilePhoto: emp.profilePhoto,
+        isActive: emp.isActive,
 
         idProofs: emp.idProof
           ? [{ "ID Proof": emp.idProof }]
@@ -103,9 +144,9 @@ useEffect(() => {
           >
             <FiArrowLeft size={16} /> Back
           </button>
-          <button type="button" className="btn-export-top">
+          {/* <button type="button" className="btn-export-top">
             <BiExport size={16} /> Export <FiChevronDown size={14} />
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -143,7 +184,7 @@ useEffect(() => {
               
               {/* Custom Tabs */}
               <div className="custom-tabs-container">
-                {["Personal Info", "Job Info", "Documents", "History"].map((tab) => (
+                {["Personal Info", "Documents"].map((tab) => (
                   <button
                     key={tab}
                     className={`custom-tab ${activeTab === tab ? "active" : ""}`}
@@ -216,10 +257,10 @@ useEffect(() => {
                           <p>{employee.email || "-"}</p>
                         </div>
                       </div>
-                      <div className="col-md-6">
+                       <div className="col-md-6">
                         <div className="info-block">
-                          <label>Email</label>
-                          <p>{employee.officeEmail || employee.email || "-"}</p>
+                          <label>Office Email</label>
+                          <p>{employee.officeEmail || "-"}</p>
                         </div>
                       </div>
                     </div>
@@ -245,6 +286,17 @@ useEffect(() => {
                       employee.idProofs.map((docObj, idx) => {
                         const docKey = Object.keys(docObj)[0];
                         const docFile = docObj[docKey];
+                        const isPdf = docFile?.toLowerCase().endsWith(".pdf");
+                        const buttonText = isPdf ? "View PDF" : docFile?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/) ? "View Image" : "View Document";
+                        
+                        const handleViewFile = () => {
+                          if (!docFile) return;
+                          const fileUrl = docFile.startsWith("http")
+                            ? docFile
+                            : `https://localhost:44306${docFile}`;
+                          window.open(fileUrl, "_blank", "noopener,noreferrer");
+                        };
+
                         return (
                           <div key={idx} className="document-view-item p-3 d-flex align-items-center justify-content-between">
                              <div className="d-flex align-items-center gap-3">
@@ -254,7 +306,12 @@ useEffect(() => {
                                   <small className="text-muted">{docFile}</small>
                                 </div>
                              </div>
-                             <button className="btn btn-sm btn-outline-primary px-3 fw-bold rounded-pill">View PDF</button>
+                             <button 
+                               className="btn btn-sm btn-outline-primary px-3 fw-bold rounded-pill"
+                               onClick={handleViewFile}
+                             >
+                               {buttonText}
+                             </button>
                           </div>
                         );
                       })
@@ -266,12 +323,7 @@ useEffect(() => {
                   </div>
                 </div>
               )}
-              
-              {(activeTab === "Job Info" || activeTab === "History") && (
-                <div className="tab-empty-state text-center text-muted p-5">
-                  <p>Details for {activeTab} will be available soon.</p>
-                </div>
-              )}
+
 
             </div>
           </div>
@@ -289,8 +341,11 @@ useEffect(() => {
                 >
                   Edit Employee
                 </button>
-                <button className="btn-action-red">
-                  Deactivate Employee
+                <button 
+                  className={employee.isActive ? "btn-action-red" : "btn-action-blue"}
+                  onClick={() => setIsConfirmOpen(true)}
+                >
+                  {employee.isActive ? "Deactivate Employee" : "Activate Employee"}
                 </button>
                 <button className="btn-action-outline">
                   View Punch In/Out
@@ -329,6 +384,24 @@ useEffect(() => {
         </div>
 
       </div>
+
+      <ReusableConfirm
+        isOpen={isConfirmOpen}
+        title={employee.isActive ? "Confirm Deactivation" : "Confirm Activation"}
+        message={`Are you sure you want to ${employee.isActive ? "deactivate" : "activate"} "${employee.name}"?`}
+        onConfirm={handleConfirmToggleActive}
+        onCancel={() => setIsConfirmOpen(false)}
+        confirmText={employee.isActive ? "Deactivate" : "Activate"}
+        confirmBtnClass={employee.isActive ? "custom-delete-btn" : "custom-activate-btn"}
+      />
+
+      <ReusablePopup
+        isOpen={popupState.isOpen}
+        onClose={() => setPopupState((prev) => ({ ...prev, isOpen: false }))}
+        title={popupState.title}
+        message={popupState.message}
+        type={popupState.type}
+      />
     </div>
   );
 };
