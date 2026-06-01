@@ -3,7 +3,6 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useSidebar } from "../../Context/SidebarContext";
 import { sidebarIconMap } from "../../utils/sidebarIconMap";
 import { FiChevronDown, FiChevronUp, FiLogOut } from "react-icons/fi";
-import { getMenuItems } from "./Sidebar";
 import profileImg from "../../asset/image/profile.jpg";
 import "./Sidebar.css";
 
@@ -16,21 +15,142 @@ const Sidebar = () => {
   const [user, setUser] = useState(null);
   const [openItem, setOpenItem] = useState(null);
 
+ useEffect(() => {
+
+  const fetchMenu = () => {
+
+    const permissions =
+      localStorage.getItem("permissions");
+
+    if (!permissions) {
+
+      setMenuItems([]);
+
+      return;
+    }
+
+    try {
+
+      const parsed =
+        JSON.parse(permissions);
+
+      const menuArray =
+        Array.isArray(parsed)
+          ? parsed
+          : [];
+
+      const formattedMenus =
+        menuArray.map((item) => ({
+
+          id: item.id,
+
+          label: item.name,
+
+          icon:
+            item.name === "Dashboard"
+              ? "hi-view-grid"
+
+              : item.name === "Employee"
+              ? "bi-people"
+
+              : item.name === "Settings"
+              ? "bi-gear"
+
+              : item.name === "Configuration"
+              ? "bi-sliders"
+
+              : "bi-grid",
+
+          url:
+            item.name === "Dashboard"
+              ? "/dashboard"
+
+              : item.name === "Employee"
+              ? "/employee/list"
+
+              : "#",
+
+          // Employee is a direct link — no submenu
+          children:
+            item.name === "Employee"
+              ? []
+              : (item.child || []).filter((child) =>
+                  child.name !== "Employee List"
+                ).map((child) => ({
+
+                  id: child.id,
+
+                  label: child.name === "Add User" ? "User" : child.name,
+
+                  url:
+
+                    child.name === "Add User"
+                    ? "/users/add"
+
+                    : child.name === "Roles & Permission"
+                    ? "/settings/roles"
+
+                    : child.name === "Profile"
+                    ? "/settings/profile"
+
+                    : child.name === "Security"
+                    ? "/settings/security"
+
+                    : child.name === "General"
+                    ? "/settings/general"
+
+                    : child.name === "Holidays"
+                    ? "/settings/holidays"
+
+                    : child.name === "Department"
+                    ? "/settings/department"
+
+                    : child.name === "Designation"
+                    ? "/settings/designation"
+
+                    : child.name === "Business"
+                    ? "/configuration/business"
+
+                    : "#",
+                })),
+        }));
+
+      console.log(
+        "Formatted Menus:",
+        formattedMenus
+      );
+
+      setMenuItems(formattedMenus);
+
+    } catch (error) {
+
+      console.error(
+        "Permission parse error:",
+        error
+      );
+
+      setMenuItems([]);
+    }
+  };
+
+  fetchMenu();
+
+}, []);
+
   useEffect(() => {
-    const fetchMenu = async () => {
-      const response = await getMenuItems();
-      setMenuItems(response);
+    const loadUser = () => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
     };
 
-    fetchMenu();
-  }, []);
+    loadUser();
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    window.addEventListener("userUpdate", loadUser);
+    return () => {
+      window.removeEventListener("userUpdate", loadUser);
+    };
   }, []);
 
   const toggleMenu = (index) => {
@@ -42,12 +162,10 @@ const Sidebar = () => {
     if (isMobile) collapseSidebar();
   };
 
-const handleLogout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-
-  navigate("/login");
-};
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = "/login";
+  };
 
   return (
     <aside
@@ -82,7 +200,7 @@ const handleLogout = () => {
                       isParentActive ? "active" : ""
                     }`}
                   >
-                    <div className="sidebar-icon-wrapper">
+                    <div className={`sidebar-icon-wrapper ${item.icon}`}>
                       {Icon && <Icon size={18} />}
                     </div>
 
@@ -114,15 +232,16 @@ const handleLogout = () => {
                       isParentActive ? "active" : ""
                     }`}
                     onClick={() => {
-                      if (collapsed) {
-                        handleLinkClick();
-                        navigate(item.url);
-                      } else {
+                      if (hasChildren) {
                         toggleMenu(index);
+                      } else {
+                        handleLinkClick();
+
+                        navigate(item.url);
                       }
                     }}
                   >
-                    <div className="sidebar-icon-wrapper">
+                    <div className={`sidebar-icon-wrapper ${item.icon}`}>
                       {Icon && <Icon size={18} />}
                     </div>
 
@@ -195,7 +314,9 @@ const handleLogout = () => {
           <img
             src={
               user?.profilePhoto
-                ? `https://localhost:44306${user.profilePhoto}`
+                ? user.profilePhoto.startsWith("http")
+                  ? user.profilePhoto
+                  : `https://localhost:44306${user.profilePhoto}`
                 : profileImg
             }
             alt="User"
@@ -214,7 +335,7 @@ const handleLogout = () => {
                 className="user-email text-muted text-truncate"
                 style={{ fontSize: "12px" }}
               >
-               {user?.email || ""}
+                {user?.email || ""}
               </div>
             </div>
           )}

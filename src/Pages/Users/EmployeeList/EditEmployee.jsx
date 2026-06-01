@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiHome, FiChevronDown } from "react-icons/fi";
+import { FiHome, FiChevronDown, FiCamera } from "react-icons/fi";
 import { BiExport } from "react-icons/bi";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
@@ -29,8 +29,23 @@ const EditEmployee = () => {
     control,
     formState: { errors },
     reset,
-  } = useForm();
+    watch,
+    setValue,
+  } = useForm({
+    defaultValues: {
+      countryId: "",
+      stateId: "",
+      cityId: "",
+    }
+  });
   const [loading, setLoading] = useState(false);
+
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+
+  const watchCountryId = watch("countryId");
+  const watchStateId = watch("stateId");
 
   // States for enabling edits per section
   const [editPersonalInfo, setEditPersonalInfo] = useState(false);
@@ -40,6 +55,9 @@ const EditEmployee = () => {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [employeeData, setEmployeeData] = useState(null);
   const fileInputRef = React.useRef(null);
+  const profilePhotoInputRef = React.useRef(null);
+  const [profilePhotoFile, setProfilePhotoFile] = useState(null);
+  const [profilePhotoPreview, setProfilePhotoPreview] = useState(null);
   const [updatingDoc, setUpdatingDoc] = useState(null);
   const [documentName, setDocumentName] = useState("");
   const [popupState, setPopupState] = useState({
@@ -104,14 +122,23 @@ const EditEmployee = () => {
     }
   };
 
+  const handleProfilePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePhotoFile(file);
+      setProfilePhotoPreview(URL.createObjectURL(file));
+    }
+  };
+
   // Load dropdown data
   useEffect(() => {
     const fetchDropdownData = async () => {
       try {
-        const [deptRes, desigRes, managerRes] = await Promise.all([
+        const [deptRes, desigRes, managerRes, countryRes] = await Promise.all([
           api.get("/Department"),
           api.get("/Designation"),
           api.get("/Employee/dropdown"),
+          api.get("/Country"),
         ]);
 
         const getArray = (res) => {
@@ -128,6 +155,7 @@ const EditEmployee = () => {
           label: role.roleName,
         }));
         setManagerOptions(managers);
+        setCountries(getArray(countryRes.data));
       } catch (err) {
         console.error("Failed to fetch dropdown data", err);
       }
@@ -140,69 +168,160 @@ const EditEmployee = () => {
     const loadEmployee = async () => {
       if (!id || isDataLoaded) return;
 
-    const response = await fetchById(id);
+      const employee = await fetchById(id);
 
-const employee = response?.data || response;
+      if (employee) {
+        setEmployeeData(employee);
 
-if (employee) {
-  setEmployeeData(employee);
+        // Fetch States and Cities first before resetting form values, to ensure the dropdowns have options
+        if (employee.countryId) {
+          try {
+            const statesRes = await api.get(`/State/by-country/${employee.countryId}`);
+            const getArray = (res) => {
+              if (Array.isArray(res)) return res;
+              if (res?.$values) return res.$values;
+              if (res?.data) return res.data;
+              return [];
+            };
+            setStates(getArray(statesRes.data));
 
-  reset({
-  fullName: employee.name || "",
+            if (employee.stateId) {
+              const citiesRes = await api.get(`/City/by-country-state?countryId=${employee.countryId}&stateId=${employee.stateId}`);
+              setCities(getArray(citiesRes.data));
+            }
+          } catch (err) {
+            console.error("Failed to fetch initial state/city lists", err);
+          }
+        }
 
-  gender: employee.gender
-    ? employee.gender.charAt(0).toUpperCase() +
-      employee.gender.slice(1).toLowerCase()
-    : "",
+        reset({
+          fullName: employee.name || "",
 
-  dob: employee.dob || "",
+          gender: employee.gender
+            ? employee.gender.charAt(0).toUpperCase() +
+              employee.gender.slice(1).toLowerCase()
+            : "",
 
-  email: employee.email || "",
+          dob: employee.dob || "",
 
-  phone: employee.phone || "",
+          email: employee.email || "",
 
-  emergencyContact: employee.emergencyContact || "",
+          officeEmail: employee.officeEmail || "",
 
-  address: employee.address || "",
+          phone: employee.phone || "",
 
-  department: employee.departmentId || "",
+          emergencyContact: employee.emergencyContact || "",
 
-  designation: employee.designationId || "",
+          address: employee.address || "",
 
-  manager: employee.reportingManagerId || "",
+          department: employee.departmentId || "",
 
-  joiningDate: employee.joiningDate || "",
+          designation: employee.designationId || "",
 
-  employeeId: employee.employeeId || "",
+          manager: employee.reportingManagerId || "",
 
-  shift: employee.shift
-    ? employee.shift.charAt(0).toUpperCase() +
-      employee.shift.slice(1).toLowerCase()
-    : "",
+          joiningDate: employee.joiningDate || "",
 
-  password: "",
-  confirmPassword: "",
-});
+          employeeId: employee.employeeId || "",
 
-  setIsDataLoaded(true);
-}
+          shift: employee.shift
+            ? employee.shift.charAt(0).toUpperCase() +
+              employee.shift.slice(1).toLowerCase()
+            : "",
+
+          countryId: employee.countryId || "",
+          stateId: employee.stateId || "",
+          cityId: employee.cityId || "",
+          password: "",
+          confirmPassword: "",
+        });
+        setIsDataLoaded(true);
+      }
     };
 
     loadEmployee();
   }, [id, fetchById, reset, isDataLoaded]);
 
+  // Fetch States when Country changes
+  useEffect(() => {
+    if (!watchCountryId) {
+      setStates([]);
+      setValue("stateId", "");
+      setCities([]);
+      setValue("cityId", "");
+      return;
+    }
+
+    const fetchStates = async () => {
+      try {
+        const res = await api.get(`/State/by-country/${watchCountryId}`);
+        const getArray = (res) => {
+          if (Array.isArray(res)) return res;
+          if (res?.$values) return res.$values;
+          if (res?.data) return res.data;
+          return [];
+        };
+        setStates(getArray(res.data));
+        
+        // ONLY reset state/city if the new countryId is DIFFERENT from the initial employee countryId OR if initial load is already done
+        if (isDataLoaded && String(watchCountryId) !== String(employeeData?.countryId)) {
+          setValue("stateId", "");
+          setCities([]);
+          setValue("cityId", "");
+        }
+      } catch (err) {
+        console.error("Failed to fetch states", err);
+      }
+    };
+    fetchStates();
+  }, [watchCountryId, setValue, employeeData, isDataLoaded]);
+
+  // Fetch Cities when State changes
+  useEffect(() => {
+    if (!watchStateId || !watchCountryId) {
+      setCities([]);
+      setValue("cityId", "");
+      return;
+    }
+
+    const fetchCities = async () => {
+      try {
+        const res = await api.get(`/City/by-country-state?countryId=${watchCountryId}&stateId=${watchStateId}`);
+        const getArray = (res) => {
+          if (Array.isArray(res)) return res;
+          if (res?.$values) return res.$values;
+          if (res?.data) return res.data;
+          return [];
+        };
+        setCities(getArray(res.data));
+        
+        // ONLY reset cityId if the new stateId/countryId is DIFFERENT from the initial employee stateId/countryId OR if initial load is already done
+        if (isDataLoaded && (String(watchStateId) !== String(employeeData?.stateId) || String(watchCountryId) !== String(employeeData?.countryId))) {
+          setValue("cityId", "");
+        }
+      } catch (err) {
+        console.error("Failed to fetch cities", err);
+      }
+    };
+    fetchCities();
+  }, [watchStateId, watchCountryId, setValue, employeeData, isDataLoaded]);
+
   const onSubmit = async (data) => {
     setLoading(true);
-
- const payload = {
+const payload = {
   fullName: data.fullName,
   gender: data.gender,
   dateOfBirth: data.dob,
 
   personalEmail: data.email,
+  officeEmail: data.officeEmail,
+
   personalPhone: data.phone,
   emergencyContact: data.emergencyContact,
   address: data.address,
+  countryId: data.countryId,
+  stateId: data.stateId,
+  cityId: data.cityId,
 
   departmentId: data.department,
   designationId: data.designation,
@@ -215,12 +334,26 @@ if (employee) {
 
   password: data.password,
   confirmPassword: data.confirmPassword,
+  profilePhoto: profilePhotoFile,
 };
 
     const res = await update(id, payload);
     setLoading(false);
 
     if (res.success) {
+      const loggedInUser = JSON.parse(localStorage.getItem("user") || "{}");
+      if (loggedInUser.email === data.email) {
+        const updatedEmp = await fetchById(id);
+        if (updatedEmp) {
+          const newUser = {
+            ...loggedInUser,
+            fullName: updatedEmp.name,
+            profilePhoto: updatedEmp.profilePhoto,
+          };
+          localStorage.setItem("user", JSON.stringify(newUser));
+          window.dispatchEvent(new Event("userUpdate"));
+        }
+      }
       showPopup("Success!", "Employee details updated successfully!");
     } else {
       showPopup("Error!", "Failed to update employee.", "error");
@@ -261,31 +394,43 @@ if (employee) {
               <span className="fw-medium text-dark">Edit Employee</span>
             </div>
           </div>
-          <button type="button" className="btn-export-top">
-            <BiExport size={16} /> Export <FiChevronDown size={14} />
-          </button>
         </div>
 
         {/* Profile Bar - Fixed at top below header */}
         <div className="profile-bar-card mb-4 d-flex align-items-center gap-3">
-          <div className="profile-avatar">
+          <input
+            type="file"
+            ref={profilePhotoInputRef}
+            style={{ display: "none" }}
+            accept="image/*"
+            onChange={handleProfilePhotoChange}
+          />
+          <div
+            className="profile-avatar"
+            onClick={() => profilePhotoInputRef.current && profilePhotoInputRef.current.click()}
+          >
             <img
               src={
-                employeeData?.profilePhoto
-                  ? employeeData.profilePhoto.startsWith("http")
-                    ? employeeData.profilePhoto
-                    : `https://localhost:44306${employeeData.profilePhoto}`
-                  : profileImg
+                profilePhotoPreview
+                  ? profilePhotoPreview
+                  : employeeData?.profilePhoto
+                    ? employeeData.profilePhoto.startsWith("http")
+                      ? employeeData.profilePhoto
+                      : `https://localhost:44306${employeeData.profilePhoto}`
+                    : profileImg
               }
               alt="Profile"
             />
+            <div className="profile-avatar-overlay">
+              <FiCamera size={18} />
+            </div>
           </div>
           <div>
             <h4 className="profile-name mb-0">
               {employeeData?.name || "Loading..."}
             </h4>
             <span className="profile-emp-id">
-             EMP ID: {employeeData?.employeeId || "..."}
+            EMP ID: {employeeData?.employeeId || "..."}
             </span>
           </div>
         </div>
@@ -417,6 +562,120 @@ if (employee) {
                       helperText={errors.phone?.message}
                       disabled={!editPersonalInfo}
                       sx={getTextFieldStyle(!editPersonalInfo)}
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label-custom">Country</label>
+                    <Controller
+                      name="countryId"
+                      control={control}
+                      rules={{ required: "Country is required" }}
+                      defaultValue=""
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          select
+                          fullWidth
+                          size="small"
+                          error={!!errors.countryId}
+                          helperText={errors.countryId?.message}
+                          disabled={!editPersonalInfo}
+                          sx={getTextFieldStyle(!editPersonalInfo)}
+                          SelectProps={{
+                            displayEmpty: true,
+                            renderValue: (value) => {
+                              const selected = countries.find(c => String(c.id) === String(value));
+                              return selected ? selected.countryName : <span style={{ color: "#9ca3af" }}>Select country</span>;
+                            }
+                          }}
+                        >
+                          <MenuItem disabled value="">
+                            Select country
+                          </MenuItem>
+                          {countries.map((c) => (
+                            <MenuItem key={c.id} value={c.id}>
+                              {c.countryName}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label-custom">State</label>
+                    <Controller
+                      name="stateId"
+                      control={control}
+                      rules={{ required: "State is required" }}
+                      defaultValue=""
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          select
+                          fullWidth
+                          size="small"
+                          error={!!errors.stateId}
+                          helperText={errors.stateId?.message}
+                          disabled={!editPersonalInfo || !watchCountryId}
+                          sx={getTextFieldStyle(!editPersonalInfo || !watchCountryId)}
+                          SelectProps={{
+                            displayEmpty: true,
+                            renderValue: (value) => {
+                              const selected = states.find(s => String(s.id) === String(value));
+                              return selected ? selected.stateName : <span style={{ color: "#9ca3af" }}>Select state</span>;
+                            }
+                          }}
+                        >
+                          <MenuItem disabled value="">
+                            Select state
+                          </MenuItem>
+                          {states.map((s) => (
+                            <MenuItem key={s.id} value={s.id}>
+                              {s.stateName}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-md-4">
+                    <label className="form-label-custom">City</label>
+                    <Controller
+                      name="cityId"
+                      control={control}
+                      rules={{ required: "City is required" }}
+                      defaultValue=""
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          select
+                          fullWidth
+                          size="small"
+                          error={!!errors.cityId}
+                          helperText={errors.cityId?.message}
+                          disabled={!editPersonalInfo || !watchStateId}
+                          sx={getTextFieldStyle(!editPersonalInfo || !watchStateId)}
+                          SelectProps={{
+                            displayEmpty: true,
+                            renderValue: (value) => {
+                              const selected = cities.find(c => String(c.id) === String(value));
+                              return selected ? selected.cityName : <span style={{ color: "#9ca3af" }}>Select city</span>;
+                            }
+                          }}
+                        >
+                          <MenuItem disabled value="">
+                            Select city
+                          </MenuItem>
+                          {cities.map((c) => (
+                            <MenuItem key={c.id} value={c.id}>
+                              {c.cityName}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      )}
                     />
                   </div>
                 </div>

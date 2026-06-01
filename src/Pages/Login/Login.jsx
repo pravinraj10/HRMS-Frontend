@@ -73,6 +73,13 @@ const onSubmit = async (data) => {
     // STORE TOKEN
     localStorage.setItem("token", response.data.token);
 
+    // STORE ROLE & PERMISSIONS
+    localStorage.setItem("role", response.data.roleName || "");
+  localStorage.setItem(
+  "permissions",
+  response.data.sideMenu || "[]"
+);
+
     // STORE USER DETAILS
     localStorage.setItem(
       "user",

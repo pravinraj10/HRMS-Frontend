@@ -260,7 +260,7 @@ const Business = () => {
             className="d-flex align-items-center gap-2"
             style={{ fontSize: "12px", color: "#94a3b8" }}
           >
-            <FiHome size={14} /> / Configuration /{" "}
+            <FiHome size={14} /> / Settings /{" "}
             <span className="fw-medium text-dark">
               {activeTab === "entity" ? "Business Entity" : "Business Units"}
             </span>

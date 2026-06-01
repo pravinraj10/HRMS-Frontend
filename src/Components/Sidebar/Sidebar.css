@@ -75,6 +75,11 @@
   align-items: center;
   justify-content: center;
 }
+.sidebar-icon-wrapper svg {
+  vertical-align: middle;
+  position: relative;
+  left: 2px;
+}
 
 .child-item {
   border-radius: 8px;

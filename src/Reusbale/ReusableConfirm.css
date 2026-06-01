@@ -59,6 +59,21 @@
   background-color: #dc2626;
 }
 
+.custom-activate-btn {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+  border: 1px solid #1d4ed8 !important;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.custom-activate-btn:hover {
+  background-color: #1d4ed8 !important;
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;

@@ -26,9 +26,16 @@ const mapEmployeeData = (emp) => {
     dob: formatDate(emp.dateOfBirth || emp.dob),
 
     email: emp.personalEmail || "",
+    officeEmail: emp.officeEmail || "",
     phone: emp.personalPhone || "",
     emergencyContact: emp.emergencyContact || "",
     address: emp.address || "",
+    countryId: emp.countryId || "",
+    stateId: emp.stateId || "",
+    cityId: emp.cityId || "",
+    country: emp.country || "",
+    state: emp.state || "",
+    city: emp.city || "",
 
     departmentId: emp.departmentId || "",
     department: emp.departmentName || "",
@@ -133,6 +140,9 @@ const update = useCallback(async (id, payload) => {
     );
 
     formData.append("Address", payload.address || "");
+    formData.append("CountryId", String(payload.countryId || ""));
+    formData.append("StateId", String(payload.stateId || ""));
+    formData.append("CityId", String(payload.cityId || ""));
 
     formData.append(
       "DepartmentId",
